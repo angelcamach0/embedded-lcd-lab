@@ -1,0 +1,22 @@
+# Arduino build artifacts
+build/
+*.elf
+*.hex
+*.eep
+*.bin
+*.map
+
+# IDE/editor noise
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local logs and env
+logs/
+.env
+.env.*
