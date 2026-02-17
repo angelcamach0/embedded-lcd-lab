@@ -98,11 +98,14 @@ Default runtime behavior (no flags):
 
 Per-sketch duration naming (optional):
 
-1. Name file as `NN_name_TTT.ino` where `TTT` is `mss`.
-2. Example: `05_custom_scene_350.ino` means 3 minutes 50 seconds.
+1. Preferred format: `NN_name_HHMMSS.ino` (24-hour style duration block).
+2. Examples:
+   - `05_custom_scene_000010.ino` -> 10 seconds
+   - `05_custom_scene_000100.ino` -> 1 minute
+   - `05_custom_scene_013000.ino` -> 1 hour 30 minutes
 3. If `WAIT_FOR_DONE=false`, this drives hold duration directly.
 4. If `WAIT_FOR_DONE=true`, this value is used as token wait timeout.
-5. If suffix is missing/invalid, script uses existing default timing behavior.
+5. Legacy `_TTT` names are still accepted for backward compatibility.
 
 ## First-run success checklist
 

@@ -369,25 +369,50 @@ sleep_with_skip() {
 
 duration_from_sketch_name() {
   # Optional naming convention:
+  # Preferred:
+  #   NN_name_HHMMSS.ino
+  # where HHMMSS is hours/minutes/seconds, e.g.:
+  #   000010 -> 10s, 000100 -> 1m, 010000 -> 1h
+  #
+  # Backward-compatible legacy:
   #   NN_name_TTT.ino
-  # where TTT is mss (minutes + seconds), e.g.:
-  #   100 -> 1:00, 050 -> 0:50, 350 -> 3:50
+  # where TTT was interpreted as mss (minutes + seconds).
+  # If legacy mss is invalid (e.g. 060, 999), it is treated as raw seconds.
   #
   # Returns seconds via stdout, or empty if no valid suffix exists.
   local sketch_path="$1"
-  local base stem ttt mins secs
+  local base stem hhmmss ttt hrs mins secs
   base="$(basename "$sketch_path")"
   stem="${base%.ino}"
 
+  if [[ "$stem" =~ _([0-9]{6})$ ]]; then
+    hhmmss="${BASH_REMATCH[1]}"
+    hrs=$((10#${hhmmss:0:2}))
+    mins=$((10#${hhmmss:2:2}))
+    secs=$((10#${hhmmss:4:2}))
+    if (( mins <= 59 && secs <= 59 )); then
+      echo $((hrs * 3600 + mins * 60 + secs))
+      return 0
+    fi
+    echo ""
+    return 0
+  fi
+
   if [[ "$stem" =~ _([0-9]{3})$ ]]; then
     ttt="${BASH_REMATCH[1]}"
-    # TTT is treated as mss: first digit minutes, last two seconds.
+    # Legacy: TTT treated as mss.
     mins=$((10#${ttt:0:1}))
     secs=$((10#${ttt:1:2}))
     if (( secs <= 59 )); then
       echo $((mins * 60 + secs))
       return 0
     fi
+
+    # Compatibility fallback:
+    # Treat invalid legacy mss as plain seconds so names like _060 and _999
+    # still produce expected timing.
+    echo $((10#$ttt))
+    return 0
   fi
 
   echo ""

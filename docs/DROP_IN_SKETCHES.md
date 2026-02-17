@@ -14,12 +14,13 @@ Discovery order rule:
 
 Optional duration suffix:
 
-1. Use `_TTT` at end of filename (before `.ino`) to define per-sketch duration.
-2. `TTT` is interpreted as `mss`:
-   - `100` => `1:00`
-   - `050` => `0:50`
-   - `350` => `3:50`
-3. If suffix is missing or invalid, script falls back to existing default behavior.
+1. Preferred: use `_HHMMSS` at end of filename (before `.ino`) to define per-sketch duration.
+2. `HHMMSS` is interpreted as hours/minutes/seconds:
+   - `000010` => 10 seconds
+   - `000100` => 1 minute
+   - `013000` => 1 hour 30 minutes
+3. Legacy `_TTT` is still accepted for backward compatibility.
+4. If suffix is missing or invalid, script falls back to existing default behavior.
 
 Built-in serial weather behavior:
 
@@ -88,7 +89,7 @@ Equivalent CLI flags are also supported:
 2. Repeated rapid skips can cause temporary serial port contention.
 3. Keep Arduino IDE Serial Monitor closed during playlist runs.
 4. Space key skip always overrides current wait/hold path and advances to next stage.
-5. If `WAIT_FOR_DONE=true` and `_TTT` exists, `_TTT` becomes token timeout for that sketch.
+5. If `WAIT_FOR_DONE=true` and a duration suffix exists, that duration becomes token timeout for that sketch.
 
 ## See also
 

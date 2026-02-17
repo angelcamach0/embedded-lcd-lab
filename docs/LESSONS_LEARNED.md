@@ -43,8 +43,8 @@ This log captures practical lessons discovered while building this project.
 ## Playlist/discovery behavior
 
 1. Numeric prefix naming (`NN_`) keeps playlist order predictable for contributors.
-2. `_TTT` (`mss`) suffix is useful as per-sketch runtime metadata.
-3. In token mode, `_TTT` works well as a per-sketch timeout override.
+2. `_HHMMSS` suffix is a clearer per-sketch runtime metadata format than legacy `_TTT`.
+3. In token mode, duration suffix works as a per-sketch timeout override.
 4. Auto-discovery default reduces maintenance when adding/removing sketches.
 
 ## Project/process
@@ -70,7 +70,7 @@ This log captures practical lessons discovered while building this project.
 5. Firmware quality decisions
    - Example: used fixed buffers, full-row rendering, and sanitization to avoid stale characters and LCD glyph issues (`src/common/lcd_shared/src/lcd_shared.h`, serial feed sketch).
 6. Extensible architecture
-   - Example: implemented auto-discovery and naming conventions (`NN_`, `_TTT`) so users can drop in sketches without changing core logic (`DROP_IN_SKETCHES.md`).
+   - Example: implemented auto-discovery and naming conventions (`NN_`, `_HHMMSS`) so users can drop in sketches without changing core logic (`DROP_IN_SKETCHES.md`).
 7. Reproducibility and developer experience
    - Example: documented dependencies, Linux permission setup, and run validation steps (`REPLICATION_REQUIREMENTS.md`, `INDEX.md`).
 8. Security/privacy awareness

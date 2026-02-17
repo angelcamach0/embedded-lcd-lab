@@ -180,11 +180,11 @@ ENV_FILE=/path/to/custom.env ./scripts/run_playlist.sh
 
 ### Why it happens
 
-In token mode, file suffix `_TTT` is treated as timeout for done-token wait.
+In token mode, filename duration suffix is treated as timeout for done-token wait (`_HHMMSS` preferred; legacy `_TTT` supported).
 
 ### Fix
 
-1. Tune `_TTT` in sketch filename (`mss` format), or
+1. Tune duration suffix in sketch filename (`_HHMMSS` preferred; legacy `_TTT` still supported), or
 2. Run with `--wait-for-done false` to use hold-timer mode directly.
 
 ## 12) `--weather-ip` does not work
