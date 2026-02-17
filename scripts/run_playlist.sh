@@ -74,9 +74,9 @@ LOCAL_LIBRARIES_DIR="${LOCAL_LIBRARIES_DIR:-$PROJECT_ROOT/src/common}"
 
 # Order matters.
 SKETCHES=(
-  "$PROJECT_ROOT/src/playlist/01_lcd_baseline_010.ino"
-  "$PROJECT_ROOT/src/playlist/02_lcd_matrix_rain_010.ino"
-  "$PROJECT_ROOT/src/playlist/03_lcd_wakeup_reveal_030.ino"
+  "$PROJECT_ROOT/src/playlist/01_lcd_baseline_000010.ino"
+  "$PROJECT_ROOT/src/playlist/02_lcd_matrix_rain_000700.ino"
+  "$PROJECT_ROOT/src/playlist/03_lcd_wakeup_reveal_000030.ino"
 )
 
 # Optional auto-discovery:
@@ -122,6 +122,7 @@ PORT_WAIT_TIMEOUT_SECONDS="${PORT_WAIT_TIMEOUT_SECONDS:-6}"
 UPLOAD_SETTLE_SECONDS="${UPLOAD_SETTLE_SECONDS:-0.9}"
 PRECOMPILE_ONCE="${PRECOMPILE_ONCE:-true}"
 BUILD_CACHE_ROOT="${BUILD_CACHE_ROOT:-/tmp/embedded-lcd-lab-build}"
+ENABLE_LEGACY_TTT_DURATION="${ENABLE_LEGACY_TTT_DURATION:-false}"
 # -------------------------------
 
 to_bool() {
@@ -151,6 +152,7 @@ Flags:
   --weather-ip <ip-address>      IPv4 or IPv6, e.g. 8.8.8.8 or 2606:4700:4700::1111
   --upload-settle-seconds <float>
   --precompile-once <true|false> Compile once and reuse build artifacts (default true)
+  --enable-legacy-ttt-duration <true|false>
   --serial-feed-sketch <path-or-file>
   --help
 EOF
@@ -227,6 +229,13 @@ parse_args() {
       --precompile-once)
         PRECOMPILE_ONCE="$(to_bool "${2:-}")" || {
           echo "Invalid value for --precompile-once: ${2:-}"
+          exit 2
+        }
+        shift 2
+        ;;
+      --enable-legacy-ttt-duration)
+        ENABLE_LEGACY_TTT_DURATION="$(to_bool "${2:-}")" || {
+          echo "Invalid value for --enable-legacy-ttt-duration: ${2:-}"
           exit 2
         }
         shift 2
@@ -369,15 +378,15 @@ sleep_with_skip() {
 
 duration_from_sketch_name() {
   # Optional naming convention:
-  # Preferred:
+  # Default:
   #   NN_name_HHMMSS.ino
   # where HHMMSS is hours/minutes/seconds, e.g.:
   #   000010 -> 10s, 000100 -> 1m, 010000 -> 1h
   #
-  # Backward-compatible legacy:
+  # Optional legacy mode (explicitly enabled):
   #   NN_name_TTT.ino
-  # where TTT was interpreted as mss (minutes + seconds).
-  # If legacy mss is invalid (e.g. 060, 999), it is treated as raw seconds.
+  # where TTT is interpreted as mss (minutes + seconds), with compatibility
+  # fallback to raw seconds for invalid mss values.
   #
   # Returns seconds via stdout, or empty if no valid suffix exists.
   local sketch_path="$1"
@@ -398,7 +407,7 @@ duration_from_sketch_name() {
     return 0
   fi
 
-  if [[ "$stem" =~ _([0-9]{3})$ ]]; then
+  if [[ "$ENABLE_LEGACY_TTT_DURATION" == "true" && "$stem" =~ _([0-9]{3})$ ]]; then
     ttt="${BASH_REMATCH[1]}"
     # Legacy: TTT treated as mss.
     mins=$((10#${ttt:0:1}))

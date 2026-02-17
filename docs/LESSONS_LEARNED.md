@@ -67,7 +67,7 @@ This log captures practical lessons discovered while building this project.
    - Resolution: re-discover sketches each cycle and recover when a path disappears mid-run.
 3. Duration naming ambiguity (`_TTT`)
    - Root cause: legacy `mss` parsing led to unexpected behavior for values like `_060`.
-   - Resolution: introduced preferred `_HHMMSS` duration format and kept legacy compatibility.
+   - Resolution: introduced `_HHMMSS` as default format and moved legacy `_TTT` to explicit opt-in mode.
 4. Broken docs links
    - Root cause: incorrect relative-path rewrite inside nested docs folders.
    - Resolution: corrected path prefixes and validated all internal markdown links.
@@ -75,11 +75,11 @@ This log captures practical lessons discovered while building this project.
 ## What this proves to recruiters
 
 1. Embedded systems implementation
-   - Example: built and debugged direct 16x2 LCD wiring, including `VO` contrast and `A/K` backlight behavior (see `wiring.md` and `src/playlist/01_lcd_baseline_010.ino`).
+   - Example: built and debugged direct 16x2 LCD wiring, including `VO` contrast and `A/K` backlight behavior (see `wiring.md` and `src/playlist/01_lcd_baseline_000010.ino`).
 2. Automation and tooling
    - Example: created playlist automation around `arduino-cli` with compile/upload/run flow in `scripts/run_playlist.sh` and `scripts/compile_playlist_sketches.sh`.
 3. Cross-layer systems design
-   - Example: coordinated host scripts plus firmware via a defined serial contract (`SERIAL_PROTOCOL.md`, `scripts/lib/serial_feed.py`, `src/playlist/04_lcd_city_datetime_temp_feed_100.ino`).
+   - Example: coordinated host scripts plus firmware via a defined serial contract (`SERIAL_PROTOCOL.md`, `scripts/lib/serial_feed.py`, `src/playlist/04_lcd_city_datetime_temp_feed_000150.ino`).
 4. Debugging and operational reliability
    - Example: handled port contention, watcher cleanup, reset timing, retry logic, and skip control behavior in runtime loops (`scripts/run_playlist.sh`, `TROUBLESHOOTING.md`).
 5. Firmware quality decisions

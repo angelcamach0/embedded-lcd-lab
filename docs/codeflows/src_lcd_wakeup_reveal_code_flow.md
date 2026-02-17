@@ -1,10 +1,10 @@
-# src/playlist/03_lcd_wakeup_reveal_030.ino
+# src/playlist/03_lcd_wakeup_reveal_000030.ino
 
-Code file: [`src/playlist/03_lcd_wakeup_reveal_030.ino`](../../src/playlist/03_lcd_wakeup_reveal_030.ino)
+Code file: [`src/playlist/03_lcd_wakeup_reveal_000030.ino`](../../src/playlist/03_lcd_wakeup_reveal_000030.ino)
 
 ## Flow diagram
 
-![src/playlist/03_lcd_wakeup_reveal_030.ino diagram](../diagrams/codeflows/src_lcd_wakeup_reveal_code_flow.svg)
+![src/playlist/03_lcd_wakeup_reveal_000030.ino diagram](../diagrams/codeflows/src_lcd_wakeup_reveal_code_flow.svg)
 
 ## Mermaid source
 

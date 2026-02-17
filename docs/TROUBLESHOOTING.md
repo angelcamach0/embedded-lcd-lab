@@ -180,12 +180,13 @@ ENV_FILE=/path/to/custom.env ./scripts/run_playlist.sh
 
 ### Why it happens
 
-In token mode, filename duration suffix is treated as timeout for done-token wait (`_HHMMSS` preferred; legacy `_TTT` supported).
+In token mode, filename duration suffix is treated as timeout for done-token wait (`_HHMMSS` default format).
 
 ### Fix
 
-1. Tune duration suffix in sketch filename (`_HHMMSS` preferred; legacy `_TTT` still supported), or
+1. Tune duration suffix in sketch filename (`_HHMMSS` default), or
 2. Run with `--wait-for-done false` to use hold-timer mode directly.
+3. If you must use old `_TTT` filenames, explicitly enable it with `--enable-legacy-ttt-duration true`.
 
 ## 12) `--weather-ip` does not work
 
@@ -251,8 +252,8 @@ Legacy `_TTT` logic interpreted values as `mss` and rejected invalid seconds fie
 ### How we fixed it
 
 1. Introduced preferred duration format `_HHMMSS` for clear, unambiguous timing.
-2. Kept legacy `_TTT` support for backward compatibility.
-3. Added compatibility fallback so invalid legacy `mss` values are treated as raw seconds.
+2. Set legacy `_TTT` to opt-in only (disabled by default).
+3. Added explicit legacy toggle (`--enable-legacy-ttt-duration true` or `ENABLE_LEGACY_TTT_DURATION=true`).
 
 ## 16) Docs links pointed to wrong paths (`docs/scripts/...` 404)
 

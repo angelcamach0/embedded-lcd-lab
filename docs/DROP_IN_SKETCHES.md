@@ -23,8 +23,11 @@ Optional duration suffix:
    - `000010` => 10 seconds
    - `000100` => 1 minute
    - `013000` => 1 hour 30 minutes
-5. Legacy `_TTT` is still accepted for backward compatibility.
-6. If suffix is missing or invalid, script falls back to existing default behavior.
+5. Legacy `_TTT` is disabled by default.
+6. Enable legacy `_TTT` only when needed with:
+   - flag: `--enable-legacy-ttt-duration true`
+   - or env: `ENABLE_LEGACY_TTT_DURATION=true`
+7. If suffix is missing or invalid, script falls back to existing default behavior.
 
 Built-in serial weather behavior:
 
@@ -73,6 +76,7 @@ then you can run token-driven switching:
 9. `LOCAL_LIBRARIES_DIR=src/common` (default shared library path)
 10. `PRECOMPILE_ONCE=true|false` (reuse compiled artifacts across cycles)
 11. `UPLOAD_SETTLE_SECONDS=0.9` (small delay after upload for serial stability)
+12. `ENABLE_LEGACY_TTT_DURATION=true|false` (default false)
 
 Equivalent CLI flags are also supported:
 
@@ -86,6 +90,7 @@ Equivalent CLI flags are also supported:
 8. `--weather-ip 8.8.8.8` (optional IPv4/IPv6 geolocation override)
 9. `--precompile-once true|false`
 10. `--upload-settle-seconds 0.9`
+11. `--enable-legacy-ttt-duration true|false`
 
 ## Common pitfalls
 

@@ -1,10 +1,10 @@
-# src/playlist/02_lcd_matrix_rain_010.ino
+# src/playlist/02_lcd_matrix_rain_000700.ino
 
-Code file: [`src/playlist/02_lcd_matrix_rain_010.ino`](../../src/playlist/02_lcd_matrix_rain_010.ino)
+Code file: [`src/playlist/02_lcd_matrix_rain_000700.ino`](../../src/playlist/02_lcd_matrix_rain_000700.ino)
 
 ## Flow diagram
 
-![src/playlist/02_lcd_matrix_rain_010.ino diagram](../diagrams/codeflows/src_lcd_matrix_rain_code_flow.svg)
+![src/playlist/02_lcd_matrix_rain_000700.ino diagram](../diagrams/codeflows/src_lcd_matrix_rain_code_flow.svg)
 
 ## Mermaid source
 

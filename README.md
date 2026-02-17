@@ -82,6 +82,7 @@ Examples with flags:
 ./run_playlist.sh --precompile-once true
 ./run_playlist.sh --upload-settle-seconds 0.9
 ./run_playlist.sh --auto-discover true --wait-for-done false --cycles 1
+./run_playlist.sh --enable-legacy-ttt-duration true
 ```
 
 Default runtime behavior (no flags):
@@ -109,11 +110,12 @@ Per-sketch duration naming (optional):
    - `05_custom_scene_013000.ino` -> 1 hour 30 minutes
 5. If `WAIT_FOR_DONE=false`, this drives hold duration directly.
 6. If `WAIT_FOR_DONE=true`, this value is used as token wait timeout.
-7. Legacy `_TTT` names are still accepted for backward compatibility.
+7. Legacy `_TTT` is disabled by default.
+8. To enable legacy `_TTT`, run with `--enable-legacy-ttt-duration true` (or set `ENABLE_LEGACY_TTT_DURATION=true` in `.env`).
 
 ## First-run success checklist
 
-1. LCD shows output from `01_lcd_baseline_010.ino`.
+1. LCD shows output from `01_lcd_baseline_000010.ino`.
 2. Playlist transitions across sketches.
 3. `Space` skips to next stage.
 4. Serial weather/date sketch updates when enabled.
@@ -162,6 +164,7 @@ Main runtime config is at the top of [`scripts/run_playlist.sh`](scripts/run_pla
 8. `POST_SKIP_COOLDOWN_SECONDS`, `PORT_WAIT_TIMEOUT_SECONDS`
 9. `UPLOAD_SETTLE_SECONDS`
 10. `PRECOMPILE_ONCE`, `BUILD_CACHE_ROOT`
+11. `ENABLE_LEGACY_TTT_DURATION`
 
 Preferred config path for users:
 1. Copy [`.env.example`](.env.example) to `.env`

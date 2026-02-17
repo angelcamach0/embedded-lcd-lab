@@ -1,10 +1,10 @@
-# src/playlist/01_lcd_baseline_010.ino
+# src/playlist/01_lcd_baseline_000010.ino
 
-Code file: [`src/playlist/01_lcd_baseline_010.ino`](../../src/playlist/01_lcd_baseline_010.ino)
+Code file: [`src/playlist/01_lcd_baseline_000010.ino`](../../src/playlist/01_lcd_baseline_000010.ino)
 
 ## Flow diagram
 
-![src/playlist/01_lcd_baseline_010.ino diagram](../diagrams/codeflows/src_lcd_baseline_code_flow.svg)
+![src/playlist/01_lcd_baseline_000010.ino diagram](../diagrams/codeflows/src_lcd_baseline_code_flow.svg)
 
 ## Mermaid source
 

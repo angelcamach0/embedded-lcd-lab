@@ -105,7 +105,7 @@ If disabled:
 
 ## See also
 
-1. [`../src/playlist/03_lcd_wakeup_reveal_030.ino`](../src/playlist/03_lcd_wakeup_reveal_030.ino) implementation reference (current default filename)
+1. [`../src/playlist/03_lcd_wakeup_reveal_000030.ino`](../src/playlist/03_lcd_wakeup_reveal_000030.ino) implementation reference (current default filename)
 2. [`codeflows/src_lcd_wakeup_reveal_code_flow.md`](codeflows/src_lcd_wakeup_reveal_code_flow.md) per-file flow diagram
 3. [`FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`](FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md) for planned dynamic LCD-size support
 4. [`INDEX.md`](INDEX.md) for full documentation navigation
