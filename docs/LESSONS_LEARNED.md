@@ -57,6 +57,21 @@ This log captures practical lessons discovered while building this project.
    - contribution/security guidance
 3. Clear acceptance criteria keep future phases focused.
 
+## Resolved issue log (recent)
+
+1. Port-busy failures after skip transitions
+   - Root cause: serial helper processes occasionally survived long enough to block next upload.
+   - Resolution: added aggressive helper cleanup + port-drain waits + stale helper PID release before uploads.
+2. Runtime sketch rename crashes
+   - Root cause: auto-discovered playlist paths were cached and not refreshed.
+   - Resolution: re-discover sketches each cycle and recover when a path disappears mid-run.
+3. Duration naming ambiguity (`_TTT`)
+   - Root cause: legacy `mss` parsing led to unexpected behavior for values like `_060`.
+   - Resolution: introduced preferred `_HHMMSS` duration format and kept legacy compatibility.
+4. Broken docs links
+   - Root cause: incorrect relative-path rewrite inside nested docs folders.
+   - Resolution: corrected path prefixes and validated all internal markdown links.
+
 ## What this proves to recruiters
 
 1. Embedded systems implementation

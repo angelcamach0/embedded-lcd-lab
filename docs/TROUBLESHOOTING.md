@@ -204,6 +204,71 @@ In token mode, filename duration suffix is treated as timeout for done-token wai
    - `8.8.8.8:443`
    - `8.8.8.8/something`
 
+## 13) Upload fails after skipping feed/scene (next cycle says port busy)
+
+### Symptoms
+
+- after pressing `Space`, next sketch upload may fail with port-busy/programmer errors
+- errors often appear at cycle boundaries
+
+### Why it happened
+
+Serial helper processes could still be holding `/dev/ttyACM0` during fast transitions.
+
+### How we fixed it
+
+1. Added explicit helper-process cleanup before uploads and at cycle boundaries.
+2. Added forced release logic for stale helper PIDs (`serial_feed.py`, `token_watcher.py`, `arduino-cli`) when they keep the port open.
+3. Added extra wait/drain checks after skip events before next upload.
+
+## 14) Renaming `.ino` files while playlist is running causes "sketch not found"
+
+### Symptoms
+
+- `Can't open sketch: no such file or directory: ...`
+- script keeps trying an old filename after you renamed a sketch
+
+### Why it happened
+
+Playlist file paths were discovered once and cached in memory.
+
+### How we fixed it
+
+1. Auto-discovery now refreshes at the start of every cycle.
+2. If a discovered sketch path disappears mid-run, the script re-discovers instead of hard-failing (when auto-discovery is enabled).
+
+## 15) `_060` or `_999` suffixes did not behave as expected
+
+### Symptoms
+
+- `_060` unexpectedly used fallback/default timing
+- confusion around old `_TTT` interpretation
+
+### Why it happened
+
+Legacy `_TTT` logic interpreted values as `mss` and rejected invalid seconds fields.
+
+### How we fixed it
+
+1. Introduced preferred duration format `_HHMMSS` for clear, unambiguous timing.
+2. Kept legacy `_TTT` support for backward compatibility.
+3. Added compatibility fallback so invalid legacy `mss` values are treated as raw seconds.
+
+## 16) Docs links pointed to wrong paths (`docs/scripts/...` 404)
+
+### Symptoms
+
+- clicking script/code links in docs returned GitHub 404
+
+### Why it happened
+
+Relative links under `docs/` and `docs/codeflows/` were rewritten as if they were rooted at repo root.
+
+### How we fixed it
+
+1. Corrected relative path prefixes (`../` and `../../`) for docs subfolders.
+2. Ran full markdown-link validation pass to confirm no missing internal links.
+
 ## See also
 
 1. [`REPLICATION_REQUIREMENTS.md`](REPLICATION_REQUIREMENTS.md)
