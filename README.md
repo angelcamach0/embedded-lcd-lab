@@ -2,12 +2,21 @@
 
 Arduino Uno + HD44780 16x2 LCD project for animation experiments, serial text rendering, and a host-driven sketch playlist workflow.
 
-## What this repo does
+## What this project does
 
 1. Provides standalone LCD sketches (`baseline`, `matrix`, `wakeup reveal`, `serial feed`).
 2. Provides a host script (`scripts/run_playlist.sh`) that uploads sketches in sequence.
 3. Pushes live time/date/weather text to the serial-feed sketch.
-4. Documents wiring, animation logic, and future offline architecture plans.
+4. Includes optional docs for wiring, internals, troubleshooting, and architecture.
+
+## Start Here (Recommended)
+
+If you only want to get it running quickly, follow this order:
+
+1. Hardware wiring: `docs/wiring.md`
+2. Environment + dependencies: `docs/REPLICATION_REQUIREMENTS.md`
+3. Run it: `scripts/run_playlist.sh`
+4. If something fails: `docs/TROUBLESHOOTING.md`
 
 ## Hardware
 
@@ -17,7 +26,7 @@ Arduino Uno + HD44780 16x2 LCD project for animation experiments, serial text re
 4. Recommended: 10k potentiometer for LCD contrast (`VO`)
 5. Recommended: ~220 ohm resistor for LCD backlight anode (`A`)
 
-See `docs/wiring.md` for the current tested map.
+See `docs/wiring.md` for the tested pin map.
 
 ## Software requirements
 
@@ -28,46 +37,6 @@ See `docs/wiring.md` for the current tested map.
 
 Detailed install + replication checklist:
 - `docs/REPLICATION_REQUIREMENTS.md`
-
-## Documentation map
-
-Use this order if you are new:
-
-1. `docs/REPLICATION_REQUIREMENTS.md` (install and verify tooling)
-2. `docs/wiring.md` (hardware pin map)
-3. `docs/animation-flow.md` (core reveal animation logic)
-4. `docs/SERIAL_PROTOCOL.md` (host/firmware serial contract)
-5. `scripts/run_playlist.sh` (host orchestration logic)
-6. `docs/LESSONS_LEARNED.md` (common failure patterns)
-7. `docs/TROUBLESHOOTING.md` (error-to-fix quick reference)
-8. `docs/FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md` (roadmap and architecture)
-9. `docs/WEB_TRIGGER_IMPLEMENTATION_DRAFT.md` (rough branch notes for upcoming feature work)
-10. `docs/DROP_IN_SKETCHES.md` (how auto-discovery + drop-in sketches work)
-
-Full index:
-- `docs/INDEX.md`
-
-## Architecture diagrams
-
-Online playlist architecture:
-
-![Online playlist architecture](docs/diagrams/online_playlist_architecture.svg)
-
-Playlist runtime state machine:
-
-![Playlist runtime state machine](docs/diagrams/playlist_runtime_state.svg)
-
-Serial protocol sequence:
-
-![Serial protocol sequence](docs/diagrams/serial_protocol_sequence.svg)
-
-Future offline master architecture:
-
-![Future offline master architecture](docs/diagrams/offline_master_architecture_future.svg)
-
-Project diagram references:
-- `docs/diagrams/README.md`
-- `docs/codeflows/README.md` (per-file flow diagrams)
 
 ## Quick start
 
@@ -125,6 +94,13 @@ Per-sketch duration naming (optional):
 3. If `WAIT_FOR_DONE=false`, this drives hold duration directly.
 4. If `WAIT_FOR_DONE=true`, this value is used as token wait timeout.
 5. If suffix is missing/invalid, script uses existing default timing behavior.
+
+## First-run success checklist
+
+1. LCD shows output from `01_lcd_baseline_010.ino`.
+2. Playlist transitions across sketches.
+3. `Space` skips to next stage.
+4. Serial weather/date sketch updates when enabled.
 
 ## Compile sketches manually
 
@@ -196,6 +172,20 @@ See `PRIVACY.md` for full details.
 2. Public-IP geolocation is approximate and can reflect VPN, carrier NAT, or ISP egress points.
 3. Weather APIs can time out; script falls back to alternate providers and `N/A` as needed.
 4. Playlist transitions require sketch upload each time, so small upload latency is expected on AVR boards.
+
+## Optional Deep Dives
+
+Use these only if you want more detail:
+
+1. `docs/INDEX.md`: full docs map
+2. `docs/SERIAL_PROTOCOL.md`: host/firmware payload contract
+3. `docs/animation-flow.md`: reveal animation internals
+4. `docs/DROP_IN_SKETCHES.md`: adding custom playlist sketches
+5. `docs/LESSONS_LEARNED.md`: practical pitfalls from development
+6. `docs/FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`: roadmap ideas
+7. `docs/WEB_TRIGGER_IMPLEMENTATION_DRAFT.md`: early draft notes
+8. `docs/diagrams/README.md`: architecture diagram index
+9. `docs/codeflows/README.md`: per-file behavior maps
 
 ## Safety and liability
 
