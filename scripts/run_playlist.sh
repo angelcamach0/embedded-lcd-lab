@@ -510,6 +510,14 @@ discover_sketches() {
   SKETCHES=("${discovered[@]}")
 }
 
+refresh_discovery_if_enabled() {
+  # Keep long-running sessions resilient to file renames/additions/removals.
+  # When auto-discovery is on, refresh the in-memory playlist from disk.
+  if [[ "$AUTO_DISCOVER_SKETCHES" == "true" ]]; then
+    discover_sketches
+  fi
+}
+
 build_cache_key() {
   local sketch_input="$1"
   local src_hash="unknown"
@@ -731,12 +739,23 @@ main() {
     cleanup_background_jobs
     force_release_port_if_owned_by_helpers
     wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS" >/dev/null 2>&1 || true
+    refresh_discovery_if_enabled
     cycle=$((cycle + 1))
     echo "[+] Starting playlist cycle ${cycle}"
     echo "[+] Tip: press Space to skip to next item"
 
     for i in "${!SKETCHES[@]}"; do
       local current_sketch="${SKETCHES[$i]}"
+      if [[ ! -f "$current_sketch" ]]; then
+        if [[ "$AUTO_DISCOVER_SKETCHES" == "true" ]]; then
+          echo "[!] Sketch path changed or removed: $current_sketch"
+          echo "[+] Refreshing discovery and continuing"
+          refresh_discovery_if_enabled
+          continue
+        fi
+        echo "[!] Sketch file missing: $current_sketch"
+        return 1
+      fi
       upload_sketch "$current_sketch"
       sleep "$UPLOAD_SETTLE_SECONDS"
 
