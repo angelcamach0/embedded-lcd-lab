@@ -1,14 +1,20 @@
 #include <LiquidCrystal.h>
+#include <lcd_shared.h>
 
 // RS, E, D4, D5, D6, D7
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+LiquidCrystal lcd(
+  lcdlab::kPinRs, lcdlab::kPinE, lcdlab::kPinD4,
+  lcdlab::kPinD5, lcdlab::kPinD6, lcdlab::kPinD7
+);
 
-const uint8_t COLS = 16;
-const uint8_t ROWS = 2;
+const uint8_t COLS = lcdlab::kCols;
+const uint8_t ROWS = lcdlab::kRows;
 const uint16_t FRAMES_PER_CYCLE = 180;
 const uint16_t FRAME_DELAY_MS = 110;
 const uint16_t STARTUP_SETTLE_MS = 350;
 const uint8_t STARTUP_WARMUP_FRAMES = 3;
+const uint8_t STARTUP_PRIME_FRAMES = 2;
+const uint16_t STARTUP_PRIME_DELAY_MS = 20;
 
 // Per-column vertical position for a "drop"
 int8_t dropRow[COLS];
@@ -33,31 +39,16 @@ void initDrops() {
   }
 }
 
-void setup() {
-  lcd.begin(COLS, ROWS);
-  // Small settle delay helps some LCD modules avoid first-frame artifacts.
-  delay(STARTUP_SETTLE_MS);
-  lcd.clear();
-  Serial.begin(9600);
-
-  // Seed randomness from a floating analog input.
-  randomSeed(analogRead(A5));
-
-  initDrops();
-}
-
-void loop() {
-  // Each frame:
-  // 1) redraw noisy background
-  // 2) advance column heads
-  // 3) emit done token when cycle budget reached
+void drawNoiseBackground() {
   for (uint8_t r = 0; r < ROWS; r++) {
     for (uint8_t c = 0; c < COLS; c++) {
       lcd.setCursor(c, r);
       lcd.print(randomMatrixChar());
     }
   }
+}
 
+void updateDropHeads() {
   // Draw brighter "drop heads" after warmup to avoid first-frame flicker.
   for (uint8_t c = 0; c < COLS; c++) {
     if (warmupFrames == 0) {
@@ -74,6 +65,38 @@ void loop() {
       dropRow[c] = random(-4, 0);
     }
   }
+}
+
+void setup() {
+  lcdlab::beginDefault16x2(lcd);
+  // Small settle delay helps some LCD modules avoid first-frame artifacts.
+  delay(STARTUP_SETTLE_MS);
+  lcd.clear();
+  Serial.begin(9600);
+
+  // Seed randomness from a floating analog input.
+  randomSeed(analogRead(A5));
+
+  initDrops();
+
+  // Prime a couple frames while display is hidden so first visible frame
+  // appears stable after upload/reset.
+  lcd.noDisplay();
+  for (uint8_t i = 0; i < STARTUP_PRIME_FRAMES; i++) {
+    drawNoiseBackground();
+    delay(STARTUP_PRIME_DELAY_MS);
+  }
+  lcd.clear();
+  lcd.display();
+}
+
+void loop() {
+  // Each frame:
+  // 1) redraw noisy background
+  // 2) advance column heads
+  // 3) emit done token when cycle budget reached
+  drawNoiseBackground();
+  updateDropHeads();
 
   if (warmupFrames > 0) {
     warmupFrames--;

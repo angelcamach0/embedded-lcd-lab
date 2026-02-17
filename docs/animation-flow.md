@@ -102,3 +102,10 @@ If disabled:
 1. Display is fixed 16x2 (32 visible chars).
 2. UTF-8/non-ASCII symbols may not render as expected on HD44780 charset.
 3. Longer text is truncated to fit display capacity.
+
+## See also
+
+1. `../src/playlist/03_lcd_wakeup_reveal_030.ino` implementation reference (current default filename)
+2. `codeflows/src_lcd_wakeup_reveal.md` per-file flow diagram
+3. `FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md` for planned dynamic LCD-size support
+4. `INDEX.md` for full documentation navigation

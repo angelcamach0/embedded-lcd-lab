@@ -26,3 +26,9 @@
    - one side to GND
    - center pin to `VO`
 2. Use ~220 ohm resistor in series with `A` (LCD backlight anode).
+
+## See also
+
+1. `REPLICATION_REQUIREMENTS.md` for hardware/software prerequisites
+2. `LESSONS_LEARNED.md` for wiring-related failure patterns
+3. `INDEX.md` for documentation navigation

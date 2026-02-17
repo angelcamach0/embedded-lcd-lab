@@ -1,13 +1,17 @@
 #include <LiquidCrystal.h>
+#include <lcd_shared.h>
 
 // HD44780 16x2 in 4-bit mode:
 // constructor order = RS, E, D4, D5, D6, D7
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+LiquidCrystal lcd(
+  lcdlab::kPinRs, lcdlab::kPinE, lcdlab::kPinD4,
+  lcdlab::kPinD5, lcdlab::kPinD6, lcdlab::kPinD7
+);
 
 // Physical LCD dimensions (used by all indexing math).
-const uint8_t COLS = 16;
-const uint8_t ROWS = 2;
-const uint8_t CELLS = COLS * ROWS;
+const uint8_t COLS = lcdlab::kCols;
+const uint8_t ROWS = lcdlab::kRows;
+const uint8_t CELLS = lcdlab::kCells;
 
 // ------------------------------------------------------------------
 // MESSAGE SETUP (user-editable)
@@ -61,20 +65,11 @@ char randomGlyph() {
   return glyphs[random(sizeof(glyphs) - 1)];
 }
 
-// Converts linear index [0..31] -> (row, col), then prints one character.
-// Keeping this in one place prevents duplicated row/column math bugs.
-void drawCell(uint8_t idx, char ch) {
-  uint8_t row = idx / COLS;
-  uint8_t col = idx % COLS;
-  lcd.setCursor(col, row);
-  lcd.print(ch);
-}
-
 // Fills all cells with random symbols for "matrix noise".
 // This is used as the visual baseline before characters lock in.
 void drawMatrixNoise() {
   for (uint8_t i = 0; i < CELLS; i++) {
-    drawCell(i, randomGlyph());
+    lcdlab::drawCell(lcd, i, randomGlyph());
   }
 }
 
@@ -199,7 +194,7 @@ void appendTrailingDots() {
     // Preserve message chars; only consume empty cells.
     if (targetGrid[pos] == ' ') {
       targetGrid[pos] = '.';
-      drawCell(pos, '.');
+      lcdlab::drawCell(lcd, pos, '.');
       dotsPlaced++;
       delay(DOT_STEP_MS);
     }
@@ -248,9 +243,9 @@ void revealMessage() {
     for (uint8_t frame = 0; frame < 7; frame++) {
       for (uint8_t i = 0; i < CELLS; i++) {
         if (locked[i]) {
-          drawCell(i, targetGrid[i]);
+          lcdlab::drawCell(lcd, i, targetGrid[i]);
         } else {
-          drawCell(i, randomGlyph());
+          lcdlab::drawCell(lcd, i, randomGlyph());
         }
       }
       delay(65);
@@ -261,7 +256,7 @@ void revealMessage() {
   // cleared[] ensures already-cleared cells stay blank in later frames.
   for (uint8_t c = 0; c < emptyCount; c++) {
     uint8_t clearPos = emptyIdx[c];
-    drawCell(clearPos, ' ');
+    lcdlab::drawCell(lcd, clearPos, ' ');
 
     // Render one frame with:
     // - letters fixed
@@ -270,13 +265,13 @@ void revealMessage() {
     // - not-yet-cleared empties still noisy
     for (uint8_t i = 0; i < CELLS; i++) {
       if (targetGrid[i] != ' ') {
-        drawCell(i, targetGrid[i]);
+        lcdlab::drawCell(lcd, i, targetGrid[i]);
       } else if (i == clearPos) {
-        drawCell(i, ' ');
+        lcdlab::drawCell(lcd, i, ' ');
       } else if (cleared[i]) {
-        drawCell(i, ' ');
+        lcdlab::drawCell(lcd, i, ' ');
       } else {
-        drawCell(i, randomGlyph());
+        lcdlab::drawCell(lcd, i, randomGlyph());
       }
     }
     cleared[clearPos] = true;
@@ -286,16 +281,16 @@ void revealMessage() {
   // Final sanitize pass: deterministic end frame (no leftover noise).
   for (uint8_t i = 0; i < CELLS; i++) {
     if (targetGrid[i] == ' ') {
-      drawCell(i, ' ');
+      lcdlab::drawCell(lcd, i, ' ');
     } else {
-      drawCell(i, targetGrid[i]);
+      lcdlab::drawCell(lcd, i, targetGrid[i]);
     }
   }
 }
 
 void setup() {
   // Hardware init.
-  lcd.begin(COLS, ROWS);
+  lcdlab::beginDefault16x2(lcd);
   lcd.clear();
   Serial.begin(9600);
 

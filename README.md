@@ -26,11 +26,55 @@ See `docs/wiring.md` for the current tested map.
 3. Python module `pyserial`
 4. Optional internet access (only needed for live weather fetch)
 
+Detailed install + replication checklist:
+- `docs/REPLICATION_REQUIREMENTS.md`
+
+## Documentation map
+
+Use this order if you are new:
+
+1. `docs/REPLICATION_REQUIREMENTS.md` (install and verify tooling)
+2. `docs/wiring.md` (hardware pin map)
+3. `docs/animation-flow.md` (core reveal animation logic)
+4. `docs/SERIAL_PROTOCOL.md` (host/firmware serial contract)
+5. `scripts/run_playlist.sh` (host orchestration logic)
+6. `docs/LESSONS_LEARNED.md` (common failure patterns)
+7. `docs/TROUBLESHOOTING.md` (error-to-fix quick reference)
+8. `docs/FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md` (roadmap and architecture)
+9. `docs/WEB_TRIGGER_IMPLEMENTATION_DRAFT.md` (rough branch notes for upcoming feature work)
+10. `docs/DROP_IN_SKETCHES.md` (how auto-discovery + drop-in sketches work)
+
+Full index:
+- `docs/INDEX.md`
+
+## Architecture diagrams
+
+Online playlist architecture:
+
+![Online playlist architecture](docs/diagrams/online_playlist_architecture.svg)
+
+Playlist runtime state machine:
+
+![Playlist runtime state machine](docs/diagrams/playlist_runtime_state.svg)
+
+Serial protocol sequence:
+
+![Serial protocol sequence](docs/diagrams/serial_protocol_sequence.svg)
+
+Future offline master architecture:
+
+![Future offline master architecture](docs/diagrams/offline_master_architecture_future.svg)
+
+Diagram sources and regeneration instructions:
+- `docs/diagrams/README.md`
+- `docs/codeflows/README.md` (per-file flow diagrams)
+
 ## Quick start
 
 ```bash
 git clone <your-repo-url>
 cd embedded-lcd-lab
+cp .env.example .env
 python3 -m pip install --user pyserial
 arduino-cli core update-index
 arduino-cli core install arduino:avr
@@ -52,52 +96,93 @@ cd scripts
 ./run_playlist.sh
 ```
 
-Example with explicit port + fixed coordinates:
+Examples with flags:
 
 ```bash
-PORT=/dev/ttyACM0 WEATHER_LAT=31.7619 WEATHER_LON=-106.4850 ./run_playlist.sh
+./run_playlist.sh --port /dev/ttyACM0 --weather-lat 31.7619 --weather-lon -106.4850
+./run_playlist.sh --weather-ip 8.8.8.8
+./run_playlist.sh --precompile-once true
+./run_playlist.sh --upload-settle-seconds 0.9
+./run_playlist.sh --auto-discover true --wait-for-done false --cycles 1
 ```
+
+Default runtime behavior (no flags):
+
+1. Auto-discovery enabled (`AUTO_DISCOVER_SKETCHES=true`)
+2. Timed mode enabled (`WAIT_FOR_DONE=false`)
+3. Infinite cycles (`PLAYLIST_CYCLES=0`)
+
+`PLAYLIST_CYCLES` / `--cycles` behavior:
+
+1. `0` means infinite loop (default).
+2. `1` means run one full cycle and stop.
+3. `N` means run N full cycles and stop.
+
+Per-sketch duration naming (optional):
+
+1. Name file as `NN_name_TTT.ino` where `TTT` is `mss`.
+2. Example: `05_custom_scene_350.ino` means 3 minutes 50 seconds.
+3. If `WAIT_FOR_DONE=false`, this drives hold duration directly.
+4. If `WAIT_FOR_DONE=true`, this value is used as token wait timeout.
+5. If suffix is missing/invalid, script uses existing default timing behavior.
 
 ## Compile sketches manually
 
 ```bash
-arduino-cli compile --fqbn arduino:avr:uno src/lcd_baseline
-arduino-cli compile --fqbn arduino:avr:uno src/lcd_wakeup_reveal
-arduino-cli compile --fqbn arduino:avr:uno src/lcd_matrix_rain
-arduino-cli compile --fqbn arduino:avr:uno src/lcd_serial_feed
+./scripts/compile_playlist_sketches.sh
 ```
+
+CI also compiles all sketches on push/PR:
+- `.github/workflows/compile-sketches.yml`
 
 ## Keyboard controls
 
 1. Press `Space` to skip to the next sketch.
 2. Press `Space` during weather feed to skip weather mode early.
+3. Space skip overrides normal token/time waits and advances immediately.
 
 ## Weather/time behavior
 
 1. Weather is fetched once per weather segment.
-2. Celsius/Fahrenheit toggles every 5 seconds from one fetched value.
-3. Top row alternates every 5 seconds:
+2. Location resolution priority:
+   - `WEATHER_LAT/WEATHER_LON` if set
+   - explicit `--weather-ip` / `WEATHER_IP` if set
+   - auto-detect current public IP location
+   - fallback to `WEATHER_LOCATION`
+   Note: public-IP geolocation is approximate and may reflect VPN/ISP egress location.
+3. Celsius/Fahrenheit toggles every 5 seconds from one fetched value.
+4. Top row alternates every 5 seconds:
    - `HH:MM:SS`
    - `Mon DD YYYY`
-4. Top-right 2 characters show region tag (US state abbreviation when available, otherwise country code/default).
+5. Top-right 2 characters show region tag (US state abbreviation when available, otherwise country code/default).
 
 ## Configuration
 
 Main runtime config is at the top of `scripts/run_playlist.sh`:
 
 1. `PORT`, `BOARD_FQBN`, `ARDUINO_CLI`
-2. `SKETCHES`, `HOLD_SECONDS`, `AUTO_DISCOVER_SKETCHES`
-3. `WAIT_FOR_DONE`, `DONE_TOKEN`, `DONE_TIMEOUT_SECONDS`
-4. `ENABLE_SERIAL_FEED`, `SERIAL_FEED_SECONDS`
-5. `WEATHER_LOCATION`, `WEATHER_LAT`, `WEATHER_LON`
-6. `PLAYLIST_CYCLES`
-7. `POST_SKIP_COOLDOWN_SECONDS`, `PORT_WAIT_TIMEOUT_SECONDS`
+2. `LOCAL_LIBRARIES_DIR`
+3. `SKETCHES`, `HOLD_SECONDS`, `AUTO_DISCOVER_SKETCHES`
+4. `WAIT_FOR_DONE`, `DONE_TOKEN`, `DONE_TIMEOUT_SECONDS`
+5. `ENABLE_SERIAL_FEED`, `SERIAL_FEED_SECONDS`
+6. `WEATHER_LOCATION`, `WEATHER_LAT`, `WEATHER_LON`, `WEATHER_IP`
+7. `PLAYLIST_CYCLES`
+8. `POST_SKIP_COOLDOWN_SECONDS`, `PORT_WAIT_TIMEOUT_SECONDS`
+9. `UPLOAD_SETTLE_SECONDS`
+10. `PRECOMPILE_ONCE`, `BUILD_CACHE_ROOT`
+
+Preferred config path for users:
+1. Copy `.env.example` to `.env`
+2. Edit `.env` values instead of changing script defaults
+3. Optional: launch with custom env file:
+   - `ENV_FILE=/path/to/custom.env ./scripts/run_playlist.sh`
 
 ## Privacy and security notes
 
 1. This repo does not contain API keys or authentication secrets.
 2. The weather feature sends either:
    - configured coordinates (`WEATHER_LAT/WEATHER_LON`), or
+   - configured/auto public IP for geolocation (`WEATHER_IP` or auto-IP), or
    - configured location text (`WEATHER_LOCATION`)
    to public weather/geocoding endpoints.
 3. If you do not want any outbound network calls, disable serial weather feed in `run_playlist.sh`:
@@ -105,16 +190,35 @@ Main runtime config is at the top of `scripts/run_playlist.sh`:
 
 See `PRIVACY.md` for full details.
 
+## Known limitations
+
+1. Rapidly pressing `Space` across uploads can still trigger transient serial port contention on some systems.
+2. Public-IP geolocation is approximate and can reflect VPN, carrier NAT, or ISP egress points.
+3. Weather APIs can time out; script falls back to alternate providers and `N/A` as needed.
+4. Playlist transitions require sketch upload each time, so small upload latency is expected on AVR boards.
+
 ## Safety and liability
 
 This project is for educational use. You are responsible for wiring, power limits, and safe operation of your hardware. See `DISCLAIMER.md`.
 
 ## Repo layout
 
-1. `src/` sketches
-2. `scripts/` host automation
-3. `docs/` design notes, wiring, and plans
-4. `docs/GITHUB_PUBLISH_CHECKLIST.md` release/publish steps
+1. `src/playlist/` runtime playlist sketches (`.ino` files)
+2. `src/common/lcd_shared/` local reusable Arduino library for shared LCD helpers
+3. `scripts/` host automation
+4. `scripts/lib/` Python helpers used by playlist/weather flow
+5. `scripts/compile_playlist_sketches.sh` compile helper for file-based playlist structure
+6. `scripts/generate_diagrams.sh` Mermaid-to-SVG generation helper
+7. `.env.example` sample runtime configuration values
+8. `docs/` design notes, wiring, and plans
+9. `docs/diagrams/` Mermaid sources and SVG architecture diagrams
+10. `docs/codeflows/` per-code-file flow diagrams and Mermaid sources
+11. `docs/INDEX.md` docs index and suggested reading path
+12. `docs/REPLICATION_REQUIREMENTS.md` full dependency/setup requirements
+13. `docs/LESSONS_LEARNED.md` project learnings and pitfalls
+14. `docs/TROUBLESHOOTING.md` quick fixes for common setup/runtime issues
+15. `docs/SERIAL_PROTOCOL.md` serial payload/token contract reference
+16. `docs/DROP_IN_SKETCHES.md` drop-in sketch testing and flags reference
 
 ## License
 

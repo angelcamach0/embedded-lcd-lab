@@ -31,3 +31,4 @@ If you change behavior, update:
 
 1. `README.md`
 2. Relevant file under `docs/`
+3. `docs/INDEX.md` if you add/remove major docs

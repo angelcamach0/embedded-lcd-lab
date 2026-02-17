@@ -77,9 +77,9 @@ This checklist is for Phase 1 only: move from host-driven playlist uploads to on
 
 ## 7) Regression checks
 - [ ] Existing standalone sketches still compile:
-  - [ ] `src/lcd_wakeup_reveal`
-  - [ ] `src/lcd_matrix_rain`
-  - [ ] `src/lcd_serial_feed`
+  - [ ] `src/playlist/03_lcd_wakeup_reveal_030.ino`
+  - [ ] `src/playlist/02_lcd_matrix_rain_010.ino`
+  - [ ] `src/playlist/04_lcd_city_datetime_temp_feed_100.ino`
 - [ ] README update notes Phase 1 architecture and usage.
 
 ## Risks To Watch
