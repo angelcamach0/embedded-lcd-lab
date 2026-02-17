@@ -143,7 +143,7 @@ CI also compiles all sketches on push/PR:
 
 ## Configuration
 
-Main runtime config is at the top of `scripts/run_playlist.sh`:
+Main runtime config is at the top of [`scripts/run_playlist.sh`](scripts/run_playlist.sh):
 
 1. `PORT`, `BOARD_FQBN`, `ARDUINO_CLI`
 2. `LOCAL_LIBRARIES_DIR`
@@ -157,7 +157,7 @@ Main runtime config is at the top of `scripts/run_playlist.sh`:
 10. `PRECOMPILE_ONCE`, `BUILD_CACHE_ROOT`
 
 Preferred config path for users:
-1. Copy `.env.example` to `.env`
+1. Copy [`.env.example`](.env.example) to `.env`
 2. Edit `.env` values instead of changing script defaults
 3. Optional: launch with custom env file:
    - `ENV_FILE=/path/to/custom.env ./scripts/run_playlist.sh`
@@ -173,7 +173,7 @@ Preferred config path for users:
 3. If you do not want any outbound network calls, disable serial weather feed in `run_playlist.sh`:
    - set `ENABLE_SERIAL_FEED=false`
 
-See `PRIVACY.md` for full details.
+See [`PRIVACY.md`](PRIVACY.md) for full details.
 
 ## Known limitations
 

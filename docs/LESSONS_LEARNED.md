@@ -59,7 +59,7 @@ This log captures practical lessons discovered while building this project.
 
 ## See also
 
-1. `REPLICATION_REQUIREMENTS.md` for setup and dependency baseline
-2. `wiring.md` for the tested LCD wiring map
-3. `FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md` for next-phase architecture
-4. `INDEX.md` for full doc navigation
+1. [`REPLICATION_REQUIREMENTS.md`](REPLICATION_REQUIREMENTS.md) for setup and dependency baseline
+2. [`wiring.md`](wiring.md) for the tested LCD wiring map
+3. [`FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`](FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md) for next-phase architecture
+4. [`INDEX.md`](INDEX.md) for full doc navigation

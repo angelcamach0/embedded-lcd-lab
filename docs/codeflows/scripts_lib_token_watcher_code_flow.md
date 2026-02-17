@@ -1,6 +1,6 @@
 # scripts/lib/token_watcher.py
 
-Code file: `scripts/lib/token_watcher.py`
+Code file: [`scripts/lib/token_watcher.py`](scripts/lib/token_watcher.py)
 
 ## Flow diagram
 

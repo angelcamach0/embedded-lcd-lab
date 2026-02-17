@@ -126,7 +126,7 @@ Weather providers can timeout or network can be unstable.
    - best: 10k potentiometer on `VO`
    - temporary test: tie `VO` to GND
 
-See `wiring.md` for full pin map.
+See [`wiring.md`](wiring.md) for full pin map.
 
 ## 8) Board not detected in `arduino-cli board list`
 
@@ -206,7 +206,7 @@ In token mode, file suffix `_TTT` is treated as timeout for done-token wait.
 
 ## See also
 
-1. `REPLICATION_REQUIREMENTS.md`
-2. `wiring.md`
-3. `LESSONS_LEARNED.md`
-4. `../README.md`
+1. [`REPLICATION_REQUIREMENTS.md`](REPLICATION_REQUIREMENTS.md)
+2. [`wiring.md`](wiring.md)
+3. [`LESSONS_LEARNED.md`](LESSONS_LEARNED.md)
+4. [`../README.md`](../README.md)

@@ -31,7 +31,7 @@ arduino-cli lib install LiquidCrystal
 
 Project-local shared library used by sketches:
 
-1. `src/common/lcd_shared`
+1. [`src/common/lcd_shared`](src/common/lcd_shared)
 
 ## Python package requirements
 
@@ -49,7 +49,7 @@ Needed only if weather serial feed is enabled:
    - `geocoding-api.open-meteo.com`
    - `wttr.in` (fallback)
 
-If you want fully local/offline operation, disable weather feed in `scripts/run_playlist.sh`:
+If you want fully local/offline operation, disable weather feed in [`scripts/run_playlist.sh`](scripts/run_playlist.sh):
 
 1. `ENABLE_SERIAL_FEED=false`
 
@@ -66,16 +66,16 @@ newgrp dialout
 
 0. `cp .env.example .env` and adjust values for your board/port/location
 1. `arduino-cli board list` shows your board/port
-2. `./scripts/compile_playlist_sketches.sh` succeeds
+2. [`./scripts/compile_playlist_sketches.sh`](./scripts/compile_playlist_sketches.sh) succeeds
 3. `bash -n scripts/run_playlist.sh` succeeds
 4. LCD baseline sketch prints expected text
-5. `./scripts/run_playlist.sh` starts auto-discovered playlist loop (default `PLAYLIST_CYCLES=0`)
+5. [`./scripts/run_playlist.sh`](./scripts/run_playlist.sh) starts auto-discovered playlist loop (default `PLAYLIST_CYCLES=0`)
 
 ## See also
 
-1. `wiring.md` for pin-by-pin wiring
-2. `LESSONS_LEARNED.md` for common setup failures
-3. `SERIAL_PROTOCOL.md` for payload format and done-token behavior
-4. `TROUBLESHOOTING.md` for fast error-to-fix mapping
-5. `../README.md` for playlist usage and runtime configuration
-6. `INDEX.md` for full documentation navigation
+1. [`wiring.md`](wiring.md) for pin-by-pin wiring
+2. [`LESSONS_LEARNED.md`](LESSONS_LEARNED.md) for common setup failures
+3. [`SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md) for payload format and done-token behavior
+4. [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) for fast error-to-fix mapping
+5. [`../README.md`](../README.md) for playlist usage and runtime configuration
+6. [`INDEX.md`](INDEX.md) for full documentation navigation

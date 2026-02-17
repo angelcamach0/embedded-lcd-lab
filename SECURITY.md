@@ -4,7 +4,7 @@
 
 This project is an educational embedded repo. Security reviews are welcome for:
 
-1. `scripts/run_playlist.sh`
+1. [`scripts/run_playlist.sh`](scripts/run_playlist.sh)
 2. Serial protocol handling in sketches
 3. Dependency and supply-chain concerns
 

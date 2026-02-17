@@ -14,4 +14,4 @@ Notes:
 
 1. These files document runtime architecture at a glance.
 2. SVG files are the project-facing artifacts used in docs.
-3. Per-file flow references are documented in `../codeflows/README.md`.
+3. Per-file flow references are documented in [`../codeflows/README.md`](../codeflows/README.md).

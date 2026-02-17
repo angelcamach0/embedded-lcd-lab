@@ -1,6 +1,6 @@
 # scripts/lib/weather_meta.py
 
-Code file: `scripts/lib/weather_meta.py`
+Code file: [`scripts/lib/weather_meta.py`](scripts/lib/weather_meta.py)
 
 ## Flow diagram
 

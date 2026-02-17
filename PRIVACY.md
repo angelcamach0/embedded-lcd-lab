@@ -1,6 +1,6 @@
 # Privacy Notes
 
-This document explains what data this project sends externally when using `scripts/run_playlist.sh`.
+This document explains what data this project sends externally when using [`scripts/run_playlist.sh`](scripts/run_playlist.sh).
 
 ## Default behavior
 
@@ -32,7 +32,7 @@ This repo does not implement:
 
 ## How to disable outbound weather requests
 
-Edit `scripts/run_playlist.sh`:
+Edit [`scripts/run_playlist.sh`](scripts/run_playlist.sh):
 
 1. Set `ENABLE_SERIAL_FEED=false`, or
 2. Keep serial feed enabled but replace weather fetch logic with a fixed local value

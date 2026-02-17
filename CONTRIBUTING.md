@@ -29,6 +29,6 @@ Thanks for contributing.
 
 If you change behavior, update:
 
-1. `README.md`
-2. Relevant file under `docs/`
-3. `docs/INDEX.md` if you add/remove major docs
+1. [`README.md`](README.md)
+2. Relevant file under [`docs/`](docs/)
+3. [`docs/INDEX.md`](docs/INDEX.md) if you add/remove major docs

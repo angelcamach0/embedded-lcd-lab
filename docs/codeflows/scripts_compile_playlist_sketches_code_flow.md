@@ -1,6 +1,6 @@
 # scripts/compile_playlist_sketches.sh
 
-Code file: `scripts/compile_playlist_sketches.sh`
+Code file: [`scripts/compile_playlist_sketches.sh`](scripts/compile_playlist_sketches.sh)
 
 ## Flow diagram
 

@@ -257,6 +257,6 @@ Allow a user to trigger LCD updates from a website/app (for example pressing a b
 
 ## See also
 
-1. `INDEX.md` for roadmap context in the full docs set
-2. `REPLICATION_REQUIREMENTS.md` for current baseline setup
-3. `LESSONS_LEARNED.md` for known constraints to avoid repeating
+1. [`INDEX.md`](INDEX.md) for roadmap context in the full docs set
+2. [`REPLICATION_REQUIREMENTS.md`](REPLICATION_REQUIREMENTS.md) for current baseline setup
+3. [`LESSONS_LEARNED.md`](LESSONS_LEARNED.md) for known constraints to avoid repeating
