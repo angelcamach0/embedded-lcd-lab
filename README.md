@@ -7,21 +7,21 @@ It was built for makers, students, and tinkerers who want something more powerfu
 
 1. Comes with preloaded scenes out of the box (`baseline`, `matrix rain`, `wakeup reveal`, `city/date/time/temp feed`)
 2. Host playlist runner automatically cycles sketches for you
-3. Drop-in workflow: add your own `.ino` files to `src/playlist/` and they get picked up automatically
+3. Drop-in workflow: add your own `.ino` files to [`src/playlist/`](src/playlist/) and they get picked up automatically
 4. Naming conventions control behavior (order + timing) without rewriting orchestration logic
 5. Space skip, loop control, token/timer modes, and weather feed support are already built in
 
 Want the naming convention + drop-in rules?
-1. Click here: `docs/DROP_IN_SKETCHES.md`
+1. Click here: [`docs/DROP_IN_SKETCHES.md`](docs/DROP_IN_SKETCHES.md)
 
 ## Start Here (Recommended)
 
 If you only want to get it running quickly, follow this order:
 
-1. Hardware wiring: `docs/wiring.md`
-2. Environment + dependencies: `docs/REPLICATION_REQUIREMENTS.md`
-3. Run it: `scripts/run_playlist.sh`
-4. If something fails: `docs/TROUBLESHOOTING.md`
+1. Hardware wiring: [`docs/wiring.md`](docs/wiring.md)
+2. Environment + dependencies: [`docs/REPLICATION_REQUIREMENTS.md`](docs/REPLICATION_REQUIREMENTS.md)
+3. Run it: [`scripts/run_playlist.sh`](scripts/run_playlist.sh)
+4. If something fails: [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md)
 
 ## Hardware
 
@@ -31,7 +31,7 @@ If you only want to get it running quickly, follow this order:
 4. Recommended: 10k potentiometer for LCD contrast (`VO`)
 5. Recommended: ~220 ohm resistor for LCD backlight anode (`A`)
 
-See `docs/wiring.md` for the tested pin map.
+See [`docs/wiring.md`](docs/wiring.md) for the tested pin map.
 
 ## Software requirements
 
@@ -41,12 +41,16 @@ See `docs/wiring.md` for the tested pin map.
 4. Optional internet access (only needed for live weather fetch)
 
 Detailed install + replication checklist:
-- `docs/REPLICATION_REQUIREMENTS.md`
+- [`docs/REPLICATION_REQUIREMENTS.md`](docs/REPLICATION_REQUIREMENTS.md)
 
 ## Quick start
 
 ```bash
-git clone <your-repo-url>
+# HTTPS
+git clone https://github.com/angelcamach0/embedded-lcd-lab.git
+# SSH
+git clone git@github.com:angelcamach0/embedded-lcd-lab.git
+
 cd embedded-lcd-lab
 cp .env.example .env
 python3 -m pip install --user pyserial
@@ -114,7 +118,7 @@ Per-sketch duration naming (optional):
 ```
 
 CI also compiles all sketches on push/PR:
-- `.github/workflows/compile-sketches.yml`
+- [`.github/workflows/compile-sketches.yml`](.github/workflows/compile-sketches.yml)
 
 ## Keyboard controls
 
@@ -182,38 +186,38 @@ See `PRIVACY.md` for full details.
 
 Use these only if you want more detail:
 
-1. `docs/INDEX.md`: full docs map
-2. `docs/SERIAL_PROTOCOL.md`: host/firmware payload contract
-3. `docs/animation-flow.md`: reveal animation internals
-4. `docs/DROP_IN_SKETCHES.md`: adding custom playlist sketches
-5. `docs/LESSONS_LEARNED.md`: practical pitfalls from development
-6. `docs/FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`: roadmap ideas
-7. `docs/WEB_TRIGGER_IMPLEMENTATION_DRAFT.md`: early draft notes
-8. `docs/diagrams/README.md`: architecture diagram index
-9. `docs/codeflows/README.md`: per-file behavior maps
+1. [`docs/INDEX.md`](docs/INDEX.md): full docs map
+2. [`docs/SERIAL_PROTOCOL.md`](docs/SERIAL_PROTOCOL.md): host/firmware payload contract
+3. [`docs/animation-flow.md`](docs/animation-flow.md): reveal animation internals
+4. [`docs/DROP_IN_SKETCHES.md`](docs/DROP_IN_SKETCHES.md): adding custom playlist sketches
+5. [`docs/LESSONS_LEARNED.md`](docs/LESSONS_LEARNED.md): practical pitfalls from development
+6. [`docs/FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`](docs/FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md): roadmap ideas
+7. [`docs/WEB_TRIGGER_IMPLEMENTATION_DRAFT.md`](docs/WEB_TRIGGER_IMPLEMENTATION_DRAFT.md): early draft notes
+8. [`docs/diagrams/README.md`](docs/diagrams/README.md): architecture diagram index
+9. [`docs/codeflows/README.md`](docs/codeflows/README.md): per-file behavior maps
 
 ## Safety and liability
 
-This project is for educational use. You are responsible for wiring, power limits, and safe operation of your hardware. See `DISCLAIMER.md`.
+This project is for educational use. You are responsible for wiring, power limits, and safe operation of your hardware. See [`DISCLAIMER.md`](DISCLAIMER.md).
 
 ## Repo layout
 
-1. `src/playlist/` runtime playlist sketches (`.ino` files)
-2. `src/common/lcd_shared/` local reusable Arduino library for shared LCD helpers
-3. `scripts/` host automation
-4. `scripts/lib/` Python helpers used by playlist/weather flow
-5. `scripts/compile_playlist_sketches.sh` compile helper for file-based playlist structure
-6. `.env.example` sample runtime configuration values
-7. `docs/` design notes, wiring, and plans
-8. `docs/diagrams/` Mermaid sources and SVG architecture diagrams
-9. `docs/codeflows/` per-code-file flow diagrams and Mermaid sources
-10. `docs/INDEX.md` docs index and suggested reading path
-11. `docs/REPLICATION_REQUIREMENTS.md` full dependency/setup requirements
-12. `docs/LESSONS_LEARNED.md` project learnings and pitfalls
-13. `docs/TROUBLESHOOTING.md` quick fixes for common setup/runtime issues
-14. `docs/SERIAL_PROTOCOL.md` serial payload/token contract reference
-15. `docs/DROP_IN_SKETCHES.md` drop-in sketch testing and flags reference
+1. [`src/playlist/`](src/playlist/) runtime playlist sketches (`.ino` files)
+2. [`src/common/lcd_shared/`](src/common/lcd_shared/) local reusable Arduino library for shared LCD helpers
+3. [`scripts/`](scripts/) host automation
+4. [`scripts/lib/`](scripts/lib/) Python helpers used by playlist/weather flow
+5. [`scripts/compile_playlist_sketches.sh`](scripts/compile_playlist_sketches.sh) compile helper for file-based playlist structure
+6. [`.env.example`](.env.example) sample runtime configuration values
+7. [`docs/`](docs/) design notes, wiring, and plans
+8. [`docs/diagrams/`](docs/diagrams/) architecture diagrams
+9. [`docs/codeflows/`](docs/codeflows/) per-code-file behavior maps
+10. [`docs/INDEX.md`](docs/INDEX.md) docs index and suggested reading path
+11. [`docs/REPLICATION_REQUIREMENTS.md`](docs/REPLICATION_REQUIREMENTS.md) full dependency/setup requirements
+12. [`docs/LESSONS_LEARNED.md`](docs/LESSONS_LEARNED.md) project learnings and pitfalls
+13. [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) quick fixes for common setup/runtime issues
+14. [`docs/SERIAL_PROTOCOL.md`](docs/SERIAL_PROTOCOL.md) serial payload/token contract reference
+15. [`docs/DROP_IN_SKETCHES.md`](docs/DROP_IN_SKETCHES.md) drop-in sketch testing and flags reference
 
 ## License
 
-This repository is licensed under the MIT License. See `LICENSE`.
+This repository is licensed under the MIT License. See [`LICENSE`](LICENSE).
