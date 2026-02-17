@@ -14,13 +14,17 @@ Discovery order rule:
 
 Optional duration suffix:
 
-1. Preferred: use `_HHMMSS` at end of filename (before `.ino`) to define per-sketch duration.
-2. `HHMMSS` is interpreted as hours/minutes/seconds:
+1. Full recommended pattern: `NN_name_HHMMSS.ino`.
+2. `NN_` controls playback sequence:
+   - lower `NN` runs first;
+   - if `NN` matches, alphabetical order by `name` is used.
+3. Preferred: use `_HHMMSS` at end of filename (before `.ino`) to define per-sketch duration.
+4. `HHMMSS` is interpreted as hours/minutes/seconds:
    - `000010` => 10 seconds
    - `000100` => 1 minute
    - `013000` => 1 hour 30 minutes
-3. Legacy `_TTT` is still accepted for backward compatibility.
-4. If suffix is missing or invalid, script falls back to existing default behavior.
+5. Legacy `_TTT` is still accepted for backward compatibility.
+6. If suffix is missing or invalid, script falls back to existing default behavior.
 
 Built-in serial weather behavior:
 

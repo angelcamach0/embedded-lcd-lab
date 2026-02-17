@@ -98,14 +98,18 @@ Default runtime behavior (no flags):
 
 Per-sketch duration naming (optional):
 
-1. Preferred format: `NN_name_HHMMSS.ino` (24-hour style duration block).
-2. Examples:
+1. Full recommended pattern: `NN_name_HHMMSS.ino`.
+2. `NN_` controls playlist order (sequence):
+   - Lower `NN` plays first.
+   - If two files share the same `NN`, they are ordered alphabetically by `name`.
+3. `HHMMSS` controls per-sketch runtime (24-hour style duration block).
+4. Examples:
    - `05_custom_scene_000010.ino` -> 10 seconds
    - `05_custom_scene_000100.ino` -> 1 minute
    - `05_custom_scene_013000.ino` -> 1 hour 30 minutes
-3. If `WAIT_FOR_DONE=false`, this drives hold duration directly.
-4. If `WAIT_FOR_DONE=true`, this value is used as token wait timeout.
-5. Legacy `_TTT` names are still accepted for backward compatibility.
+5. If `WAIT_FOR_DONE=false`, this drives hold duration directly.
+6. If `WAIT_FOR_DONE=true`, this value is used as token wait timeout.
+7. Legacy `_TTT` names are still accepted for backward compatibility.
 
 ## First-run success checklist
 
