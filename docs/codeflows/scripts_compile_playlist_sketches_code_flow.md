@@ -4,7 +4,7 @@ Code file: `scripts/compile_playlist_sketches.sh`
 
 ## Flow diagram
 
-![scripts/compile_playlist_sketches.sh diagram](../diagrams/codeflows/scripts_compile_playlist_sketches.svg)
+![scripts/compile_playlist_sketches.sh diagram](../diagrams/codeflows/scripts_compile_playlist_sketches_code_flow.svg)
 
 ## Mermaid source
 

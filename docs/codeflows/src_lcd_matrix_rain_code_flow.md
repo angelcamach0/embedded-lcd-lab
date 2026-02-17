@@ -4,7 +4,7 @@ Code file: `src/playlist/02_lcd_matrix_rain_010.ino`
 
 ## Flow diagram
 
-![src/playlist/02_lcd_matrix_rain_010.ino diagram](../diagrams/codeflows/src_lcd_matrix_rain.svg)
+![src/playlist/02_lcd_matrix_rain_010.ino diagram](../diagrams/codeflows/src_lcd_matrix_rain_code_flow.svg)
 
 ## Mermaid source
 

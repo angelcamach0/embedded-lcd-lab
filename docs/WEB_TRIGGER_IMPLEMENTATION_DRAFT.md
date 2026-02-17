@@ -96,4 +96,4 @@ Rules:
 1. `FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`
 2. `SERIAL_PROTOCOL.md`
 3. `TROUBLESHOOTING.md`
-4. `codeflows/scripts_run_playlist.md`
+4. `codeflows/scripts_run_playlist_code_flow.md`

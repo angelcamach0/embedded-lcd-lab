@@ -4,7 +4,7 @@ Code file: `scripts/run_playlist.sh`
 
 ## Flow diagram
 
-![scripts/run_playlist.sh diagram](../diagrams/codeflows/scripts_run_playlist.svg)
+![scripts/run_playlist.sh diagram](../diagrams/codeflows/scripts_run_playlist_code_flow.svg)
 
 ## Mermaid source
 

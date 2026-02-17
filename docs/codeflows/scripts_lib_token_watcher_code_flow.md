@@ -4,7 +4,7 @@ Code file: `scripts/lib/token_watcher.py`
 
 ## Flow diagram
 
-![scripts/lib/token_watcher.py diagram](../diagrams/codeflows/scripts_lib_token_watcher.svg)
+![scripts/lib/token_watcher.py diagram](../diagrams/codeflows/scripts_lib_token_watcher_code_flow.svg)
 
 ## Mermaid source
 

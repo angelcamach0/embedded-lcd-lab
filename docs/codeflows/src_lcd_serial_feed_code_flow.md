@@ -4,7 +4,7 @@ Code file: `src/playlist/04_lcd_city_datetime_temp_feed_100.ino`
 
 ## Flow diagram
 
-![src/playlist/04_lcd_city_datetime_temp_feed_100.ino diagram](../diagrams/codeflows/src_lcd_serial_feed.svg)
+![src/playlist/04_lcd_city_datetime_temp_feed_100.ino diagram](../diagrams/codeflows/src_lcd_serial_feed_code_flow.svg)
 
 ## Mermaid source
 

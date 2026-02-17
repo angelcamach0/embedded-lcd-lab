@@ -4,7 +4,7 @@ Code file: `src/playlist/03_lcd_wakeup_reveal_030.ino`
 
 ## Flow diagram
 
-![src/playlist/03_lcd_wakeup_reveal_030.ino diagram](../diagrams/codeflows/src_lcd_wakeup_reveal.svg)
+![src/playlist/03_lcd_wakeup_reveal_030.ino diagram](../diagrams/codeflows/src_lcd_wakeup_reveal_code_flow.svg)
 
 ## Mermaid source
 

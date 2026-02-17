@@ -4,7 +4,7 @@ Code file: `scripts/lib/weather_meta.py`
 
 ## Flow diagram
 
-![scripts/lib/weather_meta.py diagram](../diagrams/codeflows/scripts_lib_weather_meta.svg)
+![scripts/lib/weather_meta.py diagram](../diagrams/codeflows/scripts_lib_weather_meta_code_flow.svg)
 
 ## Mermaid source
 

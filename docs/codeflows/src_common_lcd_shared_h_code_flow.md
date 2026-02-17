@@ -4,7 +4,7 @@ Code file: `src/common/lcd_shared/src/lcd_shared.h`
 
 ## Flow diagram
 
-![src/common/lcd_shared/src/lcd_shared.h diagram](../diagrams/codeflows/src_common_lcd_shared_h.svg)
+![src/common/lcd_shared/src/lcd_shared.h diagram](../diagrams/codeflows/src_common_lcd_shared_h_code_flow.svg)
 
 ## Mermaid source
 

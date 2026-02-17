@@ -29,7 +29,7 @@ docs/diagrams/**/*.mmd
 docs/diagrams/**/*.json
 docs/codeflows/**/*.mmd
 docs/codeflows/**/*.json
-scripts/generate_diagrams.sh
+scripts/.x9r.sh
 
 # Local Arduino compile cache (runtime generated)
 /tmp/embedded-lcd-lab-build/

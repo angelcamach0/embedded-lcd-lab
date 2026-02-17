@@ -78,8 +78,8 @@ Host behavior:
 
 1. `../scripts/lib/serial_feed.py`
 2. `../scripts/lib/token_watcher.py`
-3. `codeflows/src_lcd_serial_feed.md` firmware parser flow
-4. `codeflows/scripts_lib_serial_feed.md` host sender flow
-5. `codeflows/scripts_lib_token_watcher.md` done-token watcher flow
+3. `codeflows/src_lcd_serial_feed_code_flow.md` firmware parser flow
+4. `codeflows/scripts_lib_serial_feed_code_flow.md` host sender flow
+5. `codeflows/scripts_lib_token_watcher_code_flow.md` done-token watcher flow
 6. `TROUBLESHOOTING.md`
 7. `FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`

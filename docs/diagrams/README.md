@@ -12,11 +12,8 @@ This folder contains high-level architecture diagrams and their SVG outputs.
 
 ## Regenerate SVGs
 
-From repo root:
-
-```bash
-./scripts/generate_diagrams.sh
-```
+Use your local Mermaid CLI workflow to render each `.mmd` into `.svg`.
+This repo keeps the rendered SVG files as the shareable artifact.
 
 Notes:
 

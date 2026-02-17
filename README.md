@@ -208,17 +208,16 @@ This project is for educational use. You are responsible for wiring, power limit
 3. `scripts/` host automation
 4. `scripts/lib/` Python helpers used by playlist/weather flow
 5. `scripts/compile_playlist_sketches.sh` compile helper for file-based playlist structure
-6. `scripts/generate_diagrams.sh` Mermaid-to-SVG generation helper
-7. `.env.example` sample runtime configuration values
-8. `docs/` design notes, wiring, and plans
-9. `docs/diagrams/` Mermaid sources and SVG architecture diagrams
-10. `docs/codeflows/` per-code-file flow diagrams and Mermaid sources
-11. `docs/INDEX.md` docs index and suggested reading path
-12. `docs/REPLICATION_REQUIREMENTS.md` full dependency/setup requirements
-13. `docs/LESSONS_LEARNED.md` project learnings and pitfalls
-14. `docs/TROUBLESHOOTING.md` quick fixes for common setup/runtime issues
-15. `docs/SERIAL_PROTOCOL.md` serial payload/token contract reference
-16. `docs/DROP_IN_SKETCHES.md` drop-in sketch testing and flags reference
+6. `.env.example` sample runtime configuration values
+7. `docs/` design notes, wiring, and plans
+8. `docs/diagrams/` Mermaid sources and SVG architecture diagrams
+9. `docs/codeflows/` per-code-file flow diagrams and Mermaid sources
+10. `docs/INDEX.md` docs index and suggested reading path
+11. `docs/REPLICATION_REQUIREMENTS.md` full dependency/setup requirements
+12. `docs/LESSONS_LEARNED.md` project learnings and pitfalls
+13. `docs/TROUBLESHOOTING.md` quick fixes for common setup/runtime issues
+14. `docs/SERIAL_PROTOCOL.md` serial payload/token contract reference
+15. `docs/DROP_IN_SKETCHES.md` drop-in sketch testing and flags reference
 
 ## License
 

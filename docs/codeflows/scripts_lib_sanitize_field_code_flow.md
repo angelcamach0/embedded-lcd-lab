@@ -4,7 +4,7 @@ Code file: `scripts/lib/sanitize_field.py`
 
 ## Flow diagram
 
-![scripts/lib/sanitize_field.py diagram](../diagrams/codeflows/scripts_lib_sanitize_field.svg)
+![scripts/lib/sanitize_field.py diagram](../diagrams/codeflows/scripts_lib_sanitize_field_code_flow.svg)
 
 ## Mermaid source
 

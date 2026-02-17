@@ -4,7 +4,7 @@ Code file: `scripts/lib/serial_feed.py`
 
 ## Flow diagram
 
-![scripts/lib/serial_feed.py diagram](../diagrams/codeflows/scripts_lib_serial_feed.svg)
+![scripts/lib/serial_feed.py diagram](../diagrams/codeflows/scripts_lib_serial_feed_code_flow.svg)
 
 ## Mermaid source
 
