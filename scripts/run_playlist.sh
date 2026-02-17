@@ -267,6 +267,46 @@ cleanup_background_jobs() {
   fi
 }
 
+force_release_port_if_owned_by_helpers() {
+  # Last-resort cleanup for stale helper processes that still hold the serial
+  # device between sketch transitions.
+  if ! command -v lsof >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local pids
+  pids="$(lsof -t "$PORT" 2>/dev/null | tr '\n' ' ' || true)"
+  [[ -n "${pids// }" ]] || return 0
+
+  local me pid cmd owner killed_any=false
+  me="$(id -un)"
+  for pid in $pids; do
+    [[ "$pid" =~ ^[0-9]+$ ]] || continue
+    [[ "$pid" -eq "$$" ]] && continue
+    owner="$(ps -o user= -p "$pid" 2>/dev/null | tr -d '[:space:]' || true)"
+    cmd="$(ps -o args= -p "$pid" 2>/dev/null || true)"
+    if [[ "$owner" == "$me" && ( "$cmd" == *"serial_feed.py"* || "$cmd" == *"token_watcher.py"* || "$cmd" == *"arduino-cli"* ) ]]; then
+      kill "$pid" >/dev/null 2>&1 || true
+      killed_any=true
+    fi
+  done
+
+  if [[ "$killed_any" == "true" ]]; then
+    sleep 0.35
+    pids="$(lsof -t "$PORT" 2>/dev/null | tr '\n' ' ' || true)"
+    for pid in $pids; do
+      [[ "$pid" =~ ^[0-9]+$ ]] || continue
+      [[ "$pid" -eq "$$" ]] && continue
+      owner="$(ps -o user= -p "$pid" 2>/dev/null | tr -d '[:space:]' || true)"
+      cmd="$(ps -o args= -p "$pid" 2>/dev/null || true)"
+      if [[ "$owner" == "$me" && ( "$cmd" == *"serial_feed.py"* || "$cmd" == *"token_watcher.py"* || "$cmd" == *"arduino-cli"* ) ]]; then
+        kill -9 "$pid" >/dev/null 2>&1 || true
+      fi
+    done
+    sleep 0.25
+  fi
+}
+
 port_busy_pids() {
   # Best-effort detection of processes holding the serial port.
   local pids=""
@@ -527,8 +567,12 @@ upload_sketch() {
   local build_dir=""
 
   cleanup_background_jobs
+  force_release_port_if_owned_by_helpers
   sleep 0.2
-  wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS" || cleanup_background_jobs
+  if ! wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS"; then
+    cleanup_background_jobs
+    force_release_port_if_owned_by_helpers
+  fi
   echo "[+] Uploading: $sketch_input"
   build_dir="$(compile_for_upload "$sketch_input")"
 
@@ -536,6 +580,7 @@ upload_sketch() {
   for attempt in 1 2 3; do
     if ! wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS"; then
       cleanup_background_jobs
+      force_release_port_if_owned_by_helpers
       sleep 0.7
       continue
     fi
@@ -545,6 +590,7 @@ upload_sketch() {
     fi
     echo "[!] Upload attempt ${attempt} failed; retrying shortly..."
     cleanup_background_jobs
+    force_release_port_if_owned_by_helpers
     sleep 1.2
   done
   echo "[!] Upload failed after retries: $sketch_input"
@@ -614,11 +660,17 @@ run_serial_feed() {
       wait "$py_pid" 2>/dev/null || true
       echo "[+] Space pressed: skipping serial feed"
       sleep "$POST_SKIP_COOLDOWN_SECONDS"
+      cleanup_background_jobs
+      force_release_port_if_owned_by_helpers
+      wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS" >/dev/null 2>&1 || true
       return 0
     fi
     sleep 0.1
   done
   wait "$py_pid"
+  cleanup_background_jobs
+  force_release_port_if_owned_by_helpers
+  wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS" >/dev/null 2>&1 || true
 }
 
 run_serial_feed_py() {
@@ -651,6 +703,9 @@ main() {
 
   local cycle=0
   while true; do
+    cleanup_background_jobs
+    force_release_port_if_owned_by_helpers
+    wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS" >/dev/null 2>&1 || true
     cycle=$((cycle + 1))
     echo "[+] Starting playlist cycle ${cycle}"
     echo "[+] Tip: press Space to skip to next item"
