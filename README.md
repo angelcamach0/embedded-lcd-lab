@@ -1,13 +1,18 @@
 # Embedded LCD Lab
 
-Arduino Uno + HD44780 16x2 LCD project for animation experiments, serial text rendering, and a host-driven sketch playlist workflow.
+We built a plug-and-play Arduino LCD display system that lets you run a rotating playlist of `.ino` scenes with minimal setup friction.
+It was built for makers, students, and tinkerers who want something more powerful than a single demo sketch, while still staying easy to wire, run, and extend.
 
-## What this project does
+## Why this is cool
 
-1. Provides standalone LCD sketches (`baseline`, `matrix`, `wakeup reveal`, `serial feed`).
-2. Provides a host script (`scripts/run_playlist.sh`) that uploads sketches in sequence.
-3. Pushes live time/date/weather text to the serial-feed sketch.
-4. Includes optional docs for wiring, internals, troubleshooting, and architecture.
+1. Comes with preloaded scenes out of the box (`baseline`, `matrix rain`, `wakeup reveal`, `city/date/time/temp feed`)
+2. Host playlist runner automatically cycles sketches for you
+3. Drop-in workflow: add your own `.ino` files to `src/playlist/` and they get picked up automatically
+4. Naming conventions control behavior (order + timing) without rewriting orchestration logic
+5. Space skip, loop control, token/timer modes, and weather feed support are already built in
+
+Want the naming convention + drop-in rules?
+1. Click here: `docs/DROP_IN_SKETCHES.md`
 
 ## Start Here (Recommended)
 
