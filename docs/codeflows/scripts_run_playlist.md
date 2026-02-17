@@ -13,12 +13,18 @@ flowchart TD
   A[Start] --> B[Load .env values]
   B --> C[Resolve runtime config]
   C --> D{AUTO_DISCOVER_SKETCHES?}
-  D -->|yes| E[Discover sketch folders]
+  D -->|yes| E[Discover sketch files]
   D -->|no| F[Use configured SKETCHES list]
   E --> G[Playlist cycle loop]
   F --> G
   G --> H[Compile and upload sketch]
-  H --> I{WAIT_FOR_DONE?}
+  H --> HS[Upload settle delay]
+  HS --> SF{Serial feed sketch and enabled?}
+  SF -->|yes| SM[weather_meta.py]
+  SM --> SN[sanitize_field.py]
+  SN --> SO[serial_feed.py stream]
+  SO --> L[Next sketch]
+  SF -->|no| I{WAIT_FOR_DONE?}
   I -->|yes| J[Run token_watcher.py]
   J --> K{Token / timeout / skip}
   K --> L[Next sketch]
@@ -26,14 +32,7 @@ flowchart TD
   M --> L
   L --> N{More sketches in cycle?}
   N -->|yes| H
-  N -->|no| O{ENABLE_SERIAL_FEED?}
-  O -->|yes| P[Upload 04_lcd_city_datetime_temp_feed]
-  P --> Q[weather_meta.py]
-  Q --> R[sanitize_field.py]
-  R --> S[serial_feed.py stream]
-  O -->|no| T[Skip feed stage]
-  S --> U{PLAYLIST_CYCLES reached?}
-  T --> U
+  N -->|no| U{PLAYLIST_CYCLES reached?}
   U -->|no| G
   U -->|yes| V[End]
 ```

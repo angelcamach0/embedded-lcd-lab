@@ -10,6 +10,7 @@ Per-file code flow references derived from repository source.
 4. `scripts_lib_sanitize_field.md`
 5. `scripts_lib_serial_feed.md`
 6. `scripts_generate_diagrams.md`
+7. `scripts_compile_playlist_sketches.md`
 
 ## Firmware and shared library files
 
