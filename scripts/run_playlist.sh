@@ -448,12 +448,20 @@ discover_sketches() {
 build_cache_key() {
   local sketch_input="$1"
   local src_hash="unknown"
+  local libs_hash="none"
   if [[ -f "$sketch_input" ]]; then
     src_hash="$(sha1sum "$sketch_input" | awk '{print $1}')"
   elif [[ -d "$sketch_input" ]]; then
     src_hash="$(find "$sketch_input" -type f -print0 | sort -z | xargs -0 sha1sum 2>/dev/null | sha1sum | awk '{print $1}')"
   fi
-  printf '%s' "${BOARD_FQBN}|${LOCAL_LIBRARIES_DIR}|${sketch_input}|${src_hash}" | sha1sum | awk '{print $1}'
+
+  # Include local library contents in cache key so shared helper changes
+  # trigger a rebuild instead of reusing stale compiled artifacts.
+  if [[ -d "$LOCAL_LIBRARIES_DIR" ]]; then
+    libs_hash="$(find "$LOCAL_LIBRARIES_DIR" -type f -print0 | sort -z | xargs -0 sha1sum 2>/dev/null | sha1sum | awk '{print $1}')"
+  fi
+
+  printf '%s' "${BOARD_FQBN}|${LOCAL_LIBRARIES_DIR}|${libs_hash}|${sketch_input}|${src_hash}" | sha1sum | awk '{print $1}'
 }
 
 prepare_sketch_dir() {
