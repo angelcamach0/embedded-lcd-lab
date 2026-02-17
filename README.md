@@ -65,7 +65,7 @@ Future offline master architecture:
 
 ![Future offline master architecture](docs/diagrams/offline_master_architecture_future.svg)
 
-Diagram sources and regeneration instructions:
+Project diagram references:
 - `docs/diagrams/README.md`
 - `docs/codeflows/README.md` (per-file flow diagrams)
 
