@@ -57,6 +57,27 @@ This log captures practical lessons discovered while building this project.
    - contribution/security guidance
 3. Clear acceptance criteria keep future phases focused.
 
+## What this proves to recruiters
+
+1. Embedded systems implementation
+   - Example: built and debugged direct 16x2 LCD wiring, including `VO` contrast and `A/K` backlight behavior (see `wiring.md` and `src/playlist/01_lcd_baseline_010.ino`).
+2. Automation and tooling
+   - Example: created playlist automation around `arduino-cli` with compile/upload/run flow in `scripts/run_playlist.sh` and `scripts/compile_playlist_sketches.sh`.
+3. Cross-layer systems design
+   - Example: coordinated host scripts plus firmware via a defined serial contract (`SERIAL_PROTOCOL.md`, `scripts/lib/serial_feed.py`, `src/playlist/04_lcd_city_datetime_temp_feed_100.ino`).
+4. Debugging and operational reliability
+   - Example: handled port contention, watcher cleanup, reset timing, retry logic, and skip control behavior in runtime loops (`scripts/run_playlist.sh`, `TROUBLESHOOTING.md`).
+5. Firmware quality decisions
+   - Example: used fixed buffers, full-row rendering, and sanitization to avoid stale characters and LCD glyph issues (`src/common/lcd_shared/src/lcd_shared.h`, serial feed sketch).
+6. Extensible architecture
+   - Example: implemented auto-discovery and naming conventions (`NN_`, `_TTT`) so users can drop in sketches without changing core logic (`DROP_IN_SKETCHES.md`).
+7. Reproducibility and developer experience
+   - Example: documented dependencies, Linux permission setup, and run validation steps (`REPLICATION_REQUIREMENTS.md`, `INDEX.md`).
+8. Security/privacy awareness
+   - Example: separated privacy/disclaimer/security expectations and limited runtime data flow to explicit serial payloads (`PRIVACY.md`, `DISCLAIMER.md`, `SECURITY.md`, `SERIAL_PROTOCOL.md`).
+9. Collaboration readiness
+   - Example: maintained structured docs, contribution guidance, and repo hygiene for external users and reviewers (`CONTRIBUTING.md`, top-level project docs).
+
 ## See also
 
 1. [`REPLICATION_REQUIREMENTS.md`](REPLICATION_REQUIREMENTS.md) for setup and dependency baseline
