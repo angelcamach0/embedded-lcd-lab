@@ -4,7 +4,7 @@ This guide explains how to add new sketches and have the playlist script discove
 
 ## How discovery works
 
-When `AUTO_DISCOVER_SKETCHES=true`, [`scripts/run_playlist.sh`](scripts/run_playlist.sh) scans [`src/playlist/`](src/playlist/) for `.ino` files.
+When `AUTO_DISCOVER_SKETCHES=true`, [`scripts/run_playlist.sh`](../scripts/run_playlist.sh) scans [`src/playlist/`](../src/playlist/) for `.ino` files.
 
 Discovery order rule:
 
@@ -30,7 +30,7 @@ Built-in serial weather behavior:
 
 ## Add a new sketch
 
-1. Add a new `.ino` file under [`src/playlist/`](src/playlist/):
+1. Add a new `.ino` file under [`src/playlist/`](../src/playlist/):
    - example: `src/playlist/05_lcd_dropin_test.ino`
 2. Run playlist with discovery enabled.
 

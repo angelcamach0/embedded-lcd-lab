@@ -1,6 +1,6 @@
 # scripts/lib/sanitize_field.py
 
-Code file: [`scripts/lib/sanitize_field.py`](scripts/lib/sanitize_field.py)
+Code file: [`scripts/lib/sanitize_field.py`](../../scripts/lib/sanitize_field.py)
 
 ## Flow diagram
 

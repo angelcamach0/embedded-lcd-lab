@@ -1,6 +1,6 @@
 # scripts/run_playlist.sh
 
-Code file: [`scripts/run_playlist.sh`](scripts/run_playlist.sh)
+Code file: [`scripts/run_playlist.sh`](../../scripts/run_playlist.sh)
 
 ## Flow diagram
 

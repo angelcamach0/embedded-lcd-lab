@@ -52,12 +52,12 @@ Rules:
 
 ## Integration points
 
-1. [`scripts/run_playlist.sh`](scripts/run_playlist.sh)
+1. [`scripts/run_playlist.sh`](../scripts/run_playlist.sh)
 - optional mode: `ENABLE_WEB_BRIDGE=true`
 - choose when bridge runs:
   - during `04_lcd_city_datetime_temp_feed` segment only, or
   - as a dedicated segment
-2. [`docs/SERIAL_PROTOCOL.md`](docs/SERIAL_PROTOCOL.md)
+2. [`docs/SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md)
 - keep backward-compatible payload
 - optionally document future command verbs (`CMD:SHOW|...`)
 

@@ -1,6 +1,6 @@
 # src/playlist/01_lcd_baseline_010.ino
 
-Code file: [`src/playlist/01_lcd_baseline_010.ino`](src/playlist/01_lcd_baseline_010.ino)
+Code file: [`src/playlist/01_lcd_baseline_010.ino`](../../src/playlist/01_lcd_baseline_010.ino)
 
 ## Flow diagram
 

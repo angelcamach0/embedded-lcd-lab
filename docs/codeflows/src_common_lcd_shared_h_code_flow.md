@@ -1,6 +1,6 @@
 # src/common/lcd_shared/src/lcd_shared.h
 
-Code file: [`src/common/lcd_shared/src/lcd_shared.h`](src/common/lcd_shared/src/lcd_shared.h)
+Code file: [`src/common/lcd_shared/src/lcd_shared.h`](../../src/common/lcd_shared/src/lcd_shared.h)
 
 ## Flow diagram
 

@@ -1,6 +1,6 @@
 # scripts/lib/serial_feed.py
 
-Code file: [`scripts/lib/serial_feed.py`](scripts/lib/serial_feed.py)
+Code file: [`scripts/lib/serial_feed.py`](../../scripts/lib/serial_feed.py)
 
 ## Flow diagram
 

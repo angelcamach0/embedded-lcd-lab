@@ -1,6 +1,6 @@
 # src/playlist/02_lcd_matrix_rain_010.ino
 
-Code file: [`src/playlist/02_lcd_matrix_rain_010.ino`](src/playlist/02_lcd_matrix_rain_010.ino)
+Code file: [`src/playlist/02_lcd_matrix_rain_010.ino`](../../src/playlist/02_lcd_matrix_rain_010.ino)
 
 ## Flow diagram
 

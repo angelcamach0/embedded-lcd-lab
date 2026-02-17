@@ -7,7 +7,7 @@ This document defines the current host <-> Arduino serial behavior used by the p
 ## Scope
 
 1. `src/playlist/04_lcd_city_datetime_temp_feed_*.ino` input format
-2. Host sender behavior from [`scripts/lib/serial_feed.py`](scripts/lib/serial_feed.py)
+2. Host sender behavior from [`scripts/lib/serial_feed.py`](../scripts/lib/serial_feed.py)
 3. Playlist completion token behavior (`PLAYLIST_DONE`)
 
 ## Transport
@@ -39,7 +39,7 @@ Rules:
 
 ## Current host behavior
 
-From [`scripts/lib/serial_feed.py`](scripts/lib/serial_feed.py):
+From [`scripts/lib/serial_feed.py`](../scripts/lib/serial_feed.py):
 
 1. Opens serial at `9600`, waits ~2s for Uno reset.
 2. Sends one `line1|line2\n` payload per second.
@@ -62,7 +62,7 @@ Token string:
 
 Host behavior:
 
-1. [`scripts/lib/token_watcher.py`](scripts/lib/token_watcher.py) watches serial output for this token.
+1. [`scripts/lib/token_watcher.py`](../scripts/lib/token_watcher.py) watches serial output for this token.
 2. If token is found before timeout, host advances to next sketch.
 3. If timeout occurs, host continues by fallback timeout rules.
 

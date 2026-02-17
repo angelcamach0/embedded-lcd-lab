@@ -1,6 +1,6 @@
 # src/playlist/03_lcd_wakeup_reveal_030.ino
 
-Code file: [`src/playlist/03_lcd_wakeup_reveal_030.ino`](src/playlist/03_lcd_wakeup_reveal_030.ino)
+Code file: [`src/playlist/03_lcd_wakeup_reveal_030.ino`](../../src/playlist/03_lcd_wakeup_reveal_030.ino)
 
 ## Flow diagram
 
