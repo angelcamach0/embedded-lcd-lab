@@ -82,6 +82,7 @@ Host behavior:
    - `CMD:SCENE|name`
    - `CMD:TIMER|START|SECONDS|1800`
 3. Add strict verb allowlist and bounded payload validation in firmware and host.
+4. Host parsers should ignore unknown serial lines unless they match explicit control tokens.
 
 ## Timer command protocol
 
