@@ -10,6 +10,8 @@ except Exception:
 
 
 def usage() -> None:
+    # PRE: none
+    # POST: usage text is written to stderr.
     print(
         "Usage: timer_control.py <port> START_SECONDS <seconds>"
         " | <port> START_HHMMSS <HHMMSS>"
@@ -54,6 +56,12 @@ else:
     sys.exit(2)
 
 try:
+    # PRE:
+    # - `port` points to a serial device reachable by this user.
+    # - `payload` is a validated command string ending with '\n'.
+    # POST:
+    # - command is transmitted once to the Arduino serial endpoint.
+    # - on serial errors, script exits without raising an uncaught exception.
     with serial.Serial(port, 9600, timeout=1) as ser:
         # Uno typically resets on serial open; wait for sketch boot.
         time.sleep(2.0)
@@ -62,4 +70,3 @@ try:
 except serial.SerialException as exc:
     print(f"[timer-control] serial error: {exc}", file=sys.stderr)
     sys.exit(0)
-

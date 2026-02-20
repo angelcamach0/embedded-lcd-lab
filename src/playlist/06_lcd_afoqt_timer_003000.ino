@@ -77,6 +77,8 @@ void nack(const char* code) {
 }
 
 bool parseUnsigned(const char* s, unsigned long* out) {
+  // PRE: s is a null-terminated string; out is a valid pointer.
+  // POST: returns true and stores parsed value if input is digits-only.
   if (s == nullptr || *s == '\0') {
     return false;
   }
@@ -92,6 +94,8 @@ bool parseUnsigned(const char* s, unsigned long* out) {
 }
 
 bool parseHhMmSs(const char* s, unsigned long* outSeconds) {
+  // PRE: s is a null-terminated candidate HHMMSS string.
+  // POST: returns true only for valid bounded HHMMSS and sets outSeconds.
   if (s == nullptr || strlen(s) != 6) {
     return false;
   }
@@ -113,6 +117,10 @@ bool parseHhMmSs(const char* s, unsigned long* outSeconds) {
 }
 
 void startWithSeconds(unsigned long seconds) {
+  // PRE: seconds is already validated by caller.
+  // POST:
+  // - timer state transitions to Running or Done.
+  // - render updates LCD to the corresponding state.
   initialSeconds = seconds;
   remainingSeconds = seconds;
   lastTickMs = millis();
@@ -127,6 +135,10 @@ void startWithSeconds(unsigned long seconds) {
 }
 
 void handleTimerCommand(char* line) {
+  // PRE: line is mutable, null-terminated, newline-stripped command frame.
+  // POST:
+  // - recognized commands update timer state deterministically.
+  // - malformed commands emit NACK without crashing loop.
   constexpr const char* kPrefix = "CMD:TIMER|";
   if (strncmp(line, kPrefix, strlen(kPrefix)) != 0) {
     return;
@@ -215,6 +227,11 @@ void handleTimerCommand(char* line) {
 }
 
 void processSerial() {
+  // PRE: Serial has been initialized in setup().
+  // POST:
+  // - consumes available bytes.
+  // - executes complete '\n'-delimited commands.
+  // - drops oversized frames safely.
   while (Serial.available() > 0) {
     char c = static_cast<char>(Serial.read());
     if (c == '\r') {
@@ -241,6 +258,10 @@ void processSerial() {
 }
 
 void tickTimer() {
+  // PRE: called from loop() frequently.
+  // POST:
+  // - decrements by elapsed whole seconds in Running state.
+  // - emits PLAYLIST_DONE exactly once on terminal transition to Done.
   if (timerState != TimerState::Running) {
     return;
   }
@@ -266,6 +287,8 @@ void tickTimer() {
 }
 
 void enforceSerialSilenceFallback() {
+  // PRE: lastCommandMs tracks latest command/heartbeat event.
+  // POST: running/paused timer re-enters Idle after silence threshold.
   if (timerState != TimerState::Running && timerState != TimerState::Paused) {
     return;
   }

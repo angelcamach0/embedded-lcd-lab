@@ -9,6 +9,7 @@ from pathlib import Path
 
 @dataclass
 class PlaylistItem:
+    # Immutable identity + mutable run-selection state for one discovered sketch.
     index: int
     path: Path
     basename: str
@@ -20,6 +21,9 @@ class PlaylistItem:
 
 
 def discover_items(sketch_root: Path) -> list[PlaylistItem]:
+    # PRE: sketch_root exists and is a directory.
+    # POST: returns playlist items sorted by runtime order rule:
+    #       numeric prefix, then alpha key, then path.
     items: list[PlaylistItem] = []
     for p in sorted(sketch_root.glob("*.ino")):
         stem = p.stem
@@ -46,6 +50,8 @@ def discover_items(sketch_root: Path) -> list[PlaylistItem]:
 
 
 def ask_yes_no(prompt: str, default_yes: bool = True) -> bool:
+    # PRE: prompt is a short human-readable question.
+    # POST: returns deterministic boolean answer; EOF falls back to default.
     suffix = "[Y/n]" if default_yes else "[y/N]"
     while True:
         try:
@@ -63,6 +69,8 @@ def ask_yes_no(prompt: str, default_yes: bool = True) -> bool:
 
 
 def parse_remove_indices(raw: str, max_index: int) -> list[int]:
+    # PRE: raw is comma-separated user input and max_index is >= 1.
+    # POST: returns sorted unique 1-based indices or raises ValueError.
     out: list[int] = []
     parts = [p.strip() for p in raw.split(",") if p.strip()]
     for p in parts:
@@ -76,6 +84,8 @@ def parse_remove_indices(raw: str, max_index: int) -> list[int]:
 
 
 def is_valid_hhmmss(v: str) -> bool:
+    # PRE: v is user-supplied string.
+    # POST: True only for six-digit HHMMSS with MM/SS bounds.
     if not re.fullmatch(r"\d{6}", v):
         return False
     mm = int(v[2:4])
@@ -84,6 +94,8 @@ def is_valid_hhmmss(v: str) -> bool:
 
 
 def hhmmss_to_seconds(v: str) -> int:
+    # PRE: v already validated by is_valid_hhmmss.
+    # POST: returns equivalent total seconds.
     hh = int(v[0:2])
     mm = int(v[2:4])
     ss = int(v[4:6])
@@ -91,6 +103,13 @@ def hhmmss_to_seconds(v: str) -> int:
 
 
 def main() -> int:
+    # PRE:
+    # - argv contains exactly one argument: sketch root directory.
+    # - stdin/stdout/stderr attached to terminal or pipes.
+    # POST:
+    # - writes only machine-readable records to stdout (SKETCH/OVERRIDE lines).
+    # - writes all interactive UI prompts/status to stderr.
+    # - exits nonzero on invalid invocation/discovery failure.
     if len(sys.argv) != 2:
         print("Usage: playlist_interactive.py <sketch_root>", file=sys.stderr)
         return 2
@@ -156,6 +175,8 @@ def main() -> int:
                 print("Invalid HHMMSS. Format must be 6 digits with MM/SS <= 59.", file=sys.stderr)
 
     # Machine-readable output for shell caller.
+    # PRE: items contains final selected set and optional overrides.
+    # POST: stdout stream can be parsed line-by-line by run_playlist.sh.
     for it in items:
         if it.enabled:
             print(f"SKETCH|{it.path}")
