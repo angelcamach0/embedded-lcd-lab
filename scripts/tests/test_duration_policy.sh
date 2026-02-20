@@ -17,6 +17,19 @@ assert_eq() {
   fi
 }
 
+assert_pair() {
+  local expected_seconds="$1"
+  local expected_source="$2"
+  local pair="$3"
+  local msg="$4"
+  local got_seconds="${pair%%|*}"
+  local got_source="${pair#*|}"
+  if [[ "$got_seconds" != "$expected_seconds" || "$got_source" != "$expected_source" ]]; then
+    echo "[FAIL] $msg: expected ${expected_seconds}|${expected_source} got ${pair}"
+    exit 1
+  fi
+}
+
 assert_empty() {
   local actual="$1"
   local msg="$2"
@@ -76,5 +89,27 @@ assert_rc 1 "override sketch does not match non-target basename" \
   dp_should_apply_override "sketch" 0 "target.ino" "/tmp/other.ino" 5
 assert_rc 1 "override none never applies" \
   dp_should_apply_override "none" 0 "" "/tmp/a.ino" 1
+
+# Override precedence checks via run_playlist resolver:
+# interactive_override > targeted/global override > filename_hhmmss > base/default.
+ENABLE_LEGACY_TTT_DURATION="false"
+global_override_seconds="1800"
+override_mode="global"
+override_index_1_based=0
+override_basename=""
+INTERACTIVE_OVERRIDE_NAMES=("demo_000700.ino")
+INTERACTIVE_OVERRIDE_SECONDS=("900")
+pair="$(resolve_effective_duration "/tmp/demo_000700.ino" 1 30 "default")"
+assert_pair "900" "interactive_override" "$pair" "interactive override precedence"
+
+INTERACTIVE_OVERRIDE_NAMES=()
+INTERACTIVE_OVERRIDE_SECONDS=()
+pair="$(resolve_effective_duration "/tmp/demo_000700.ino" 1 30 "default")"
+assert_pair "1800" "global_override" "$pair" "global override precedence over filename"
+
+global_override_seconds=""
+override_mode="none"
+pair="$(resolve_effective_duration "/tmp/demo_000700.ino" 1 30 "default")"
+assert_pair "420" "filename_hhmmss" "$pair" "filename precedence over base"
 
 echo "[PASS] duration policy checks passed"
