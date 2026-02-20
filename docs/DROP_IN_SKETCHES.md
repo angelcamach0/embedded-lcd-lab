@@ -28,6 +28,7 @@ Optional duration suffix:
    - flag: `--enable-legacy-ttt-duration true`
    - or env: `ENABLE_LEGACY_TTT_DURATION=true`
 7. If suffix is missing or invalid, script falls back to existing default behavior.
+8. Runtime logs now print the resolved timing source (`filename_hhmmss`, array/default fallback) for easier verification.
 
 Built-in serial weather behavior:
 
@@ -114,6 +115,9 @@ Equivalent CLI flags are also supported:
 3. Keep Arduino IDE Serial Monitor closed during playlist runs.
 4. Space key skip always overrides current wait/hold path and advances to next stage.
 5. If `WAIT_FOR_DONE=true` and a duration suffix exists, that duration becomes token timeout for that sketch.
+6. Duration precedence can be misread; verify effective values with:
+   - `./scripts/run_playlist.sh --print-playlist-plan true`
+7. Very large timer values are accepted, but LCD display is fixed to `HH:MM:SS` width.
 
 ## See also
 

@@ -2,6 +2,7 @@
 #include <lcd_shared.h>
 
 #include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -35,7 +36,10 @@ char serialBuf[kInputMax + 1];
 size_t serialLen = 0;
 
 void formatHhMmSs(unsigned long totalSeconds, char* out, size_t outLen) {
-  const unsigned long hours = totalSeconds / 3600UL;
+  // Keep LCD representation fixed-width HH:MM:SS.
+  // Internal timer state can exceed 99h, but display is capped for stability.
+  const unsigned long hoursRaw = totalSeconds / 3600UL;
+  const unsigned long hours = (hoursRaw > 99UL) ? 99UL : hoursRaw;
   const unsigned long minutes = (totalSeconds % 3600UL) / 60UL;
   const unsigned long seconds = totalSeconds % 60UL;
   snprintf(out, outLen, "%02lu:%02lu:%02lu", hours, minutes, seconds);
@@ -87,7 +91,11 @@ bool parseUnsigned(const char* s, unsigned long* out) {
     if (!isdigit(static_cast<unsigned char>(s[i]))) {
       return false;
     }
-    v = v * 10UL + static_cast<unsigned long>(s[i] - '0');
+    const unsigned long digit = static_cast<unsigned long>(s[i] - '0');
+    if (v > ((ULONG_MAX - digit) / 10UL)) {
+      return false;
+    }
+    v = v * 10UL + digit;
   }
   *out = v;
   return true;
