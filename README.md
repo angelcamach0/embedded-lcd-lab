@@ -83,6 +83,7 @@ Examples with flags:
 ./run_playlist.sh --upload-settle-seconds 0.9
 ./run_playlist.sh --auto-discover true --wait-for-done false --cycles 1
 ./run_playlist.sh --enable-legacy-ttt-duration true
+./run_playlist.sh --enable-timer-start-command true
 ```
 
 Default runtime behavior (no flags):
@@ -165,6 +166,7 @@ Main runtime config is at the top of [`scripts/run_playlist.sh`](scripts/run_pla
 9. `UPLOAD_SETTLE_SECONDS`
 10. `PRECOMPILE_ONCE`, `BUILD_CACHE_ROOT`
 11. `ENABLE_LEGACY_TTT_DURATION`
+12. `ENABLE_TIMER_START_COMMAND`
 
 Preferred config path for users:
 1. Copy [`.env.example`](.env.example) to `.env`
