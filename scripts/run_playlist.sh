@@ -132,6 +132,7 @@ INTERACTIVE_OVERRIDE_NAMES=()
 INTERACTIVE_OVERRIDE_SECONDS=()
 ENABLE_TIMER_START_COMMAND="${ENABLE_TIMER_START_COMMAND:-true}"
 INTERACTIVE_SELECTION_APPLIED="false"
+PRINT_PLAYLIST_PLAN="${PRINT_PLAYLIST_PLAN:-false}"
 # -------------------------------
 
 to_bool() {
@@ -167,6 +168,7 @@ Flags:
   --override-sketch <name.ino>         Apply override to specific sketch basename
   --interactive-playlist <true|false>  Prompt for sketch selection before run
   --enable-timer-start-command <true|false>
+  --print-playlist-plan <true|false>   Print resolved playlist plan then exit
   --serial-feed-sketch <path-or-file>
   --help
 EOF
@@ -280,6 +282,13 @@ parse_args() {
       --enable-timer-start-command)
         ENABLE_TIMER_START_COMMAND="$(to_bool "${2:-}")" || {
           echo "Invalid value for --enable-timer-start-command: ${2:-}"
+          exit 2
+        }
+        shift 2
+        ;;
+      --print-playlist-plan)
+        PRINT_PLAYLIST_PLAN="$(to_bool "${2:-}")" || {
+          echo "Invalid value for --print-playlist-plan: ${2:-}"
           exit 2
         }
         shift 2
@@ -663,6 +672,55 @@ resolve_effective_duration() {
   echo "${effective}|${source}"
 }
 
+print_playlist_plan() {
+  # PRE:
+  # - SKETCHES has final run selection in execution order.
+  # - override state already validated.
+  # POST:
+  # - emits a human-readable plan with hold/timeout values and sources.
+  # - does not mutate runtime selection state.
+  echo "[+] Resolved playlist plan:"
+  local i
+  for i in "${!SKETCHES[@]}"; do
+    local current_sketch="${SKETCHES[$i]}"
+    local base_name
+    base_name="$(basename "$current_sketch")"
+
+    local hold_base="${DEFAULT_HOLD_SECONDS}"
+    local hold_base_source="default"
+    if [[ "$i" -lt "${#HOLD_SECONDS[@]}" ]]; then
+      hold_base="${HOLD_SECONDS[$i]}"
+      hold_base_source="array"
+    fi
+    local hold_pair=""
+    hold_pair="$(resolve_effective_duration "$current_sketch" "$((i + 1))" "$hold_base" "$hold_base_source")"
+    local hold="${hold_pair%%|*}"
+    local hold_source="${hold_pair#*|}"
+
+    local timeout_base="${DEFAULT_DONE_TIMEOUT_SECONDS}"
+    local timeout_base_source="default_done_timeout"
+    if [[ "$i" -lt "${#DONE_TIMEOUT_SECONDS[@]}" ]]; then
+      timeout_base="${DONE_TIMEOUT_SECONDS[$i]}"
+      timeout_base_source="done_timeout_array"
+    elif [[ "$i" -lt "${#HOLD_SECONDS[@]}" ]]; then
+      timeout_base="${HOLD_SECONDS[$i]}"
+      timeout_base_source="hold_array_fallback"
+    fi
+    local timeout_pair=""
+    timeout_pair="$(resolve_effective_duration "$current_sketch" "$((i + 1))" "$timeout_base" "$timeout_base_source")"
+    local timeout="${timeout_pair%%|*}"
+    local timeout_source="${timeout_pair#*|}"
+
+    local timer_tag=""
+    if is_afoqt_timer_sketch "$current_sketch"; then
+      timer_tag=" timer"
+    fi
+    echo "  - [$((i + 1))] ${base_name}${timer_tag}"
+    echo "    hold: ${hold}s (${hold_source})"
+    echo "    token-timeout: ${timeout}s (${timeout_source})"
+  done
+}
+
 apply_interactive_playlist_selection() {
   # Interactive pre-run selection flow:
   # - choose which discovered sketches to run
@@ -978,6 +1036,10 @@ main() {
       override_mode="global"
       echo "[+] Global duration override active: ${DURATION_OVERRIDE_HHMMSS} (${global_override_seconds}s)"
     fi
+  fi
+  if [[ "$PRINT_PLAYLIST_PLAN" == "true" ]]; then
+    print_playlist_plan
+    return 0
   fi
 
   local cycle=0

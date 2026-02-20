@@ -88,6 +88,7 @@ Examples with flags:
 ./run_playlist.sh --duration-override-hhmmss 003000 --override-sketch 03_lcd_wakeup_reveal_000030.ino
 ./run_playlist.sh --interactive-playlist true
 ./run_playlist.sh --enable-timer-start-command true
+./run_playlist.sh --print-playlist-plan true
 ```
 
 Default runtime behavior (no flags):
@@ -124,6 +125,9 @@ Per-sketch duration naming (optional):
 11. Optional interactive selector:
    - `--interactive-playlist true`
    - lets you choose which `.ino` files to run and set timer-specific overrides before cycle start
+12. Optional plan preview:
+   - `--print-playlist-plan true`
+   - prints resolved sketch order and timing sources, then exits
 
 ## First-run success checklist
 
@@ -181,6 +185,7 @@ Main runtime config is at the top of [`scripts/run_playlist.sh`](scripts/run_pla
 13. `OVERRIDE_INDEX`, `OVERRIDE_SKETCH`
 14. `INTERACTIVE_PLAYLIST`
 15. `ENABLE_TIMER_START_COMMAND`
+16. `PRINT_PLAYLIST_PLAN`
 
 Preferred config path for users:
 1. Copy [`.env.example`](.env.example) to `.env`

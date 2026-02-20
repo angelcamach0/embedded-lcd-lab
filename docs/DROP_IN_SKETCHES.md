@@ -100,6 +100,7 @@ Equivalent CLI flags are also supported:
 14. `--override-sketch NAME.ino`
 15. `--override-index` and `--override-sketch` are mutually exclusive.
 16. `--interactive-playlist true|false`
+17. `--print-playlist-plan true|false` (preview effective timing/order and exit)
 
 ## Common pitfalls
 
@@ -114,3 +115,4 @@ Equivalent CLI flags are also supported:
 1. [`SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md)
 2. [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
 3. [`../README.md`](../README.md)
+4. [`ENGINEERING_QUALITY_AND_ROADMAP.md`](ENGINEERING_QUALITY_AND_ROADMAP.md)
