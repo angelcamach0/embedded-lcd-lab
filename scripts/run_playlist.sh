@@ -914,6 +914,11 @@ run_token_watcher_py() {
 run_serial_feed() {
   # Resolve location/temperature metadata, then stream line1|line2 payloads
   # once per second for the configured duration.
+  # PRE:
+  # - feed_seconds is a positive integer duration chosen by runtime policy.
+  # POST:
+  # - attempts serial feed streaming for up to feed_seconds unless skipped.
+  local feed_seconds="$1"
   need_cmd python3
 
   local weather_meta
@@ -932,7 +937,7 @@ run_serial_feed() {
   tag="$(python3 "$SCRIPT_LIB/sanitize_field.py" tag "$tag")"
   echo "[+] Weather value: ${weather}  City: ${city}  Tag: ${tag}  Source: ${source}"
 
-  run_serial_feed_py "$PORT" "$SERIAL_FEED_SECONDS" "$weather" "$city" "$tag" &
+  run_serial_feed_py "$PORT" "$feed_seconds" "$weather" "$city" "$tag" &
   local py_pid=$!
   while kill -0 "$py_pid" >/dev/null 2>&1; do
     if check_space_pressed; then
@@ -1067,12 +1072,6 @@ main() {
       upload_sketch "$current_sketch"
       sleep "$UPLOAD_SETTLE_SECONDS"
 
-      if [[ "$ENABLE_SERIAL_FEED" == "true" && "$current_sketch" == "$SERIAL_FEED_SKETCH_PATH" ]]; then
-        echo "[+] Running serial weather/time feed for ${SERIAL_FEED_SECONDS}s"
-        run_serial_feed
-        continue
-      fi
-
       local hold_base="${DEFAULT_HOLD_SECONDS}"
       local hold_base_source="default"
       if [[ "$i" -lt "${#HOLD_SECONDS[@]}" ]]; then
@@ -1083,6 +1082,12 @@ main() {
       hold_pair="$(resolve_effective_duration "$current_sketch" "$((i + 1))" "$hold_base" "$hold_base_source")"
       local hold="${hold_pair%%|*}"
       local hold_source="${hold_pair#*|}"
+
+      if [[ "$ENABLE_SERIAL_FEED" == "true" && "$current_sketch" == "$SERIAL_FEED_SKETCH_PATH" ]]; then
+        echo "[+] Running serial weather/time feed for ${hold}s (source: ${hold_source})"
+        run_serial_feed "$hold"
+        continue
+      fi
 
       send_timer_start_if_applicable "$current_sketch" "$hold"
 

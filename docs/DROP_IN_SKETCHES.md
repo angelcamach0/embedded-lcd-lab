@@ -35,6 +35,11 @@ Built-in serial weather behavior:
    `04_lcd_city_datetime_temp_feed_*.ino`
 2. It remains in normal discovery order.
 3. When that sketch is active, the host script pushes weather/time lines for `SERIAL_FEED_SECONDS`.
+4. Runtime duration for the weather sketch follows the same precedence as other sketches:
+   - interactive override
+   - global/index/sketch override flags
+   - filename `_HHMMSS`
+   - `SERIAL_FEED_SECONDS` fallback
 
 ## Add a new sketch
 
