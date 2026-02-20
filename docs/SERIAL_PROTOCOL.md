@@ -43,6 +43,7 @@ Timer command safety (AFOQT timer sketch):
 2. Validates `HHMMSS` length and `MM/SS` bounds.
 3. Validates `SECONDS` payload is integer-only.
 4. Ignores unsupported verbs without crashing parser loop.
+5. If serial command channel is silent too long while running/paused, sketch falls back to idle state.
 
 ## Current host behavior
 
@@ -76,22 +77,17 @@ Host behavior:
 ## Compatibility and extension guidance
 
 1. Keep existing `line1|line2\n` format backward-compatible.
-2. For command protocol, use explicit verb prefix, for example:
+2. For future command protocol, use explicit verb prefix, for example:
    - `CMD:SHOW|line1|line2`
    - `CMD:SCENE|name`
-   - `CMD:TIMER|START|HHMMSS|003000`
-   - `CMD:TIMER|START|SECONDS|1800`
 3. Add strict verb allowlist and bounded payload validation in firmware and host.
-
-For timer-specific contract details, see [`AFOQT_TIMER_PROTOCOL.md`](AFOQT_TIMER_PROTOCOL.md).
 
 ## See also
 
 1. [`../scripts/lib/serial_feed.py`](../scripts/lib/serial_feed.py)
 2. [`../scripts/lib/token_watcher.py`](../scripts/lib/token_watcher.py)
-3. [`../scripts/lib/timer_control.py`](../scripts/lib/timer_control.py)
-4. [`codeflows/src_lcd_serial_feed_code_flow.md`](codeflows/src_lcd_serial_feed_code_flow.md) firmware parser flow
-5. [`codeflows/scripts_lib_serial_feed_code_flow.md`](codeflows/scripts_lib_serial_feed_code_flow.md) host sender flow
-6. [`codeflows/scripts_lib_token_watcher_code_flow.md`](codeflows/scripts_lib_token_watcher_code_flow.md) done-token watcher flow
-7. [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
-8. [`FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`](FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md)
+3. [`codeflows/src_lcd_serial_feed_code_flow.md`](codeflows/src_lcd_serial_feed_code_flow.md) firmware parser flow
+4. [`codeflows/scripts_lib_serial_feed_code_flow.md`](codeflows/scripts_lib_serial_feed_code_flow.md) host sender flow
+5. [`codeflows/scripts_lib_token_watcher_code_flow.md`](codeflows/scripts_lib_token_watcher_code_flow.md) done-token watcher flow
+6. [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
+7. [`FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`](FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md)
