@@ -20,6 +20,10 @@ weather = sys.argv[3]
 city = sys.argv[4]
 tag = (sys.argv[5] or "--")[:2]
 
+# PRE:
+# - weather input is sanitized ASCII-like text from host weather resolver.
+# POST:
+# - temp_c holds canonical Celsius value when parseable; otherwise None.
 # Parse weather once (expected like "17.1C"), then toggle C/F locally.
 temp_c = None
 m = re.match(r"^\s*([+-]?\d+(?:\.\d+)?)\s*([CFcf]?)\s*$", weather or "")
@@ -29,11 +33,19 @@ if m:
     temp_c = (v - 32.0) * (5.0 / 9.0) if u == "F" else v
 
 try:
+    # PRE:
+    # - port exists and current user can open it.
+    # - duration is a non-negative integer.
+    # POST:
+    # - emits 1 payload/second until duration expires or serial fails.
     with serial.Serial(port, 9600, timeout=1) as ser:
         # UNO resets when serial opens; wait once for sketch boot.
         time.sleep(2.0)
         end_ts = time.time() + duration
         while time.time() < end_ts:
+            # Loop invariant:
+            # - line1 is always exactly 16 chars.
+            # - line2 is clamped to 16 chars to prevent LCD overflow.
             now = datetime.now()
             show_date = ((int(time.time()) // 5) % 2) == 1
 
