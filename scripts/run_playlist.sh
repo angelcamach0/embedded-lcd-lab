@@ -123,6 +123,7 @@ UPLOAD_SETTLE_SECONDS="${UPLOAD_SETTLE_SECONDS:-0.9}"
 PRECOMPILE_ONCE="${PRECOMPILE_ONCE:-true}"
 BUILD_CACHE_ROOT="${BUILD_CACHE_ROOT:-/tmp/embedded-lcd-lab-build}"
 ENABLE_LEGACY_TTT_DURATION="${ENABLE_LEGACY_TTT_DURATION:-false}"
+DURATION_OVERRIDE_HHMMSS="${DURATION_OVERRIDE_HHMMSS:-}"
 # -------------------------------
 
 to_bool() {
@@ -153,6 +154,7 @@ Flags:
   --upload-settle-seconds <float>
   --precompile-once <true|false> Compile once and reuse build artifacts (default true)
   --enable-legacy-ttt-duration <true|false>
+  --duration-override-hhmmss <HHMMSS>  Global runtime duration override
   --serial-feed-sketch <path-or-file>
   --help
 EOF
@@ -238,6 +240,10 @@ parse_args() {
           echo "Invalid value for --enable-legacy-ttt-duration: ${2:-}"
           exit 2
         }
+        shift 2
+        ;;
+      --duration-override-hhmmss)
+        DURATION_OVERRIDE_HHMMSS="${2:-}"
         shift 2
         ;;
       --serial-feed-sketch)
@@ -425,6 +431,23 @@ duration_from_sketch_name() {
   fi
 
   echo ""
+}
+
+hhmmss_to_seconds() {
+  local hhmmss="$1"
+  local hrs mins secs
+  if [[ ! "$hhmmss" =~ ^[0-9]{6}$ ]]; then
+    echo ""
+    return 0
+  fi
+  hrs=$((10#${hhmmss:0:2}))
+  mins=$((10#${hhmmss:2:2}))
+  secs=$((10#${hhmmss:4:2}))
+  if (( mins > 59 || secs > 59 )); then
+    echo ""
+    return 0
+  fi
+  echo $((hrs * 3600 + mins * 60 + secs))
 }
 
 is_excluded_file() {
@@ -743,6 +766,17 @@ main() {
     echo "[!] SKETCHES and HOLD_SECONDS length mismatch; using DEFAULT_HOLD_SECONDS=${DEFAULT_HOLD_SECONDS}s"
   fi
 
+  local global_override_seconds=""
+  if [[ -n "$DURATION_OVERRIDE_HHMMSS" ]]; then
+    global_override_seconds="$(hhmmss_to_seconds "$DURATION_OVERRIDE_HHMMSS")"
+    if [[ -z "$global_override_seconds" ]]; then
+      echo "[!] Invalid --duration-override-hhmmss value: $DURATION_OVERRIDE_HHMMSS"
+      echo "[!] Expected HHMMSS with MM/SS <= 59, e.g. 003000"
+      return 2
+    fi
+    echo "[+] Global duration override active: ${DURATION_OVERRIDE_HHMMSS} (${global_override_seconds}s)"
+  fi
+
   local cycle=0
   while true; do
     cleanup_background_jobs
@@ -783,6 +817,9 @@ main() {
       if [[ -n "$name_duration" ]]; then
         hold="$name_duration"
       fi
+      if [[ -n "$global_override_seconds" ]]; then
+        hold="$global_override_seconds"
+      fi
 
       if [[ "$WAIT_FOR_DONE" == "true" ]]; then
         local timeout="${DEFAULT_DONE_TIMEOUT_SECONDS}"
@@ -793,6 +830,9 @@ main() {
         fi
         if [[ -n "$name_duration" ]]; then
           timeout="$name_duration"
+        fi
+        if [[ -n "$global_override_seconds" ]]; then
+          timeout="$global_override_seconds"
         fi
         echo "[+] Waiting for token '${DONE_TOKEN}' (timeout: ${timeout}s)"
         if wait_for_done_token "$timeout"; then
