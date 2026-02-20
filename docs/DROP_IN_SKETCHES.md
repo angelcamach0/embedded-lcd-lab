@@ -105,3 +105,4 @@ Equivalent CLI flags are also supported:
 1. [`SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md)
 2. [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
 3. [`../README.md`](../README.md)
+4. [`TIMING_OVERRIDE_RISKS.md`](TIMING_OVERRIDE_RISKS.md)
