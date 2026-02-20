@@ -45,6 +45,11 @@ elif action == "START_HHMMSS":
     if len(raw) != 6 or not raw.isdigit():
         print("Invalid HHMMSS: must be 6 digits", file=sys.stderr)
         sys.exit(2)
+    mm = int(raw[2:4])
+    ss = int(raw[4:6])
+    if mm > 59 or ss > 59:
+        print("Invalid HHMMSS: MM/SS must be <= 59", file=sys.stderr)
+        sys.exit(2)
     payload = f"CMD:TIMER|START|HHMMSS|{raw}\n"
 elif action in {"PAUSE", "RESUME", "RESET", "STOP", "PING"}:
     if len(sys.argv) != 3:
