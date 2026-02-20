@@ -15,6 +15,7 @@ This index separates core setup docs from optional deep-dive references.
 2. [`animation-flow.md`](animation-flow.md) (wakeup reveal behavior details)
 3. [`SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md) (host/firmware serial contract)
 4. [`DROP_IN_SKETCHES.md`](DROP_IN_SKETCHES.md) (drop-in `.ino` usage and runtime flags)
+5. [`AFOQT_TIMER_PROTOCOL.md`](AFOQT_TIMER_PROTOCOL.md) (timer command contract)
 
 ## Optional internals
 
