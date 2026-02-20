@@ -12,6 +12,10 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPT_LIB="$PROJECT_ROOT/scripts/lib"
 ENV_FILE="${ENV_FILE:-$PROJECT_ROOT/.env}"
+DURATION_POLICY_LIB="$SCRIPT_LIB/duration_policy.sh"
+
+# shellcheck source=./lib/duration_policy.sh
+source "$DURATION_POLICY_LIB"
 
 trim_whitespace() {
   local s="$1"
@@ -430,71 +434,13 @@ sleep_with_skip() {
 }
 
 duration_from_sketch_name() {
-  # Optional naming convention:
-  # Default:
-  #   NN_name_HHMMSS.ino
-  # where HHMMSS is hours/minutes/seconds, e.g.:
-  #   000010 -> 10s, 000100 -> 1m, 010000 -> 1h
-  #
-  # Optional legacy mode (explicitly enabled):
-  #   NN_name_TTT.ino
-  # where TTT is interpreted as mss (minutes + seconds), with compatibility
-  # fallback to raw seconds for invalid mss values.
-  #
-  # Returns seconds via stdout, or empty if no valid suffix exists.
-  local sketch_path="$1"
-  local base stem hhmmss ttt hrs mins secs
-  base="$(basename "$sketch_path")"
-  stem="${base%.ino}"
-
-  if [[ "$stem" =~ _([0-9]{6})$ ]]; then
-    hhmmss="${BASH_REMATCH[1]}"
-    hrs=$((10#${hhmmss:0:2}))
-    mins=$((10#${hhmmss:2:2}))
-    secs=$((10#${hhmmss:4:2}))
-    if (( mins <= 59 && secs <= 59 )); then
-      echo $((hrs * 3600 + mins * 60 + secs))
-      return 0
-    fi
-    echo ""
-    return 0
-  fi
-
-  if [[ "$ENABLE_LEGACY_TTT_DURATION" == "true" && "$stem" =~ _([0-9]{3})$ ]]; then
-    ttt="${BASH_REMATCH[1]}"
-    # Legacy: TTT treated as mss.
-    mins=$((10#${ttt:0:1}))
-    secs=$((10#${ttt:1:2}))
-    if (( secs <= 59 )); then
-      echo $((mins * 60 + secs))
-      return 0
-    fi
-
-    # Compatibility fallback:
-    # Treat invalid legacy mss as plain seconds so names like _060 and _999
-    # still produce expected timing.
-    echo $((10#$ttt))
-    return 0
-  fi
-
-  echo ""
+  # Wrapper for backwards compatibility with existing callers/tests.
+  dp_duration_from_sketch_name "$1" "$ENABLE_LEGACY_TTT_DURATION"
 }
 
 hhmmss_to_seconds() {
-  local hhmmss="$1"
-  local hrs mins secs
-  if [[ ! "$hhmmss" =~ ^[0-9]{6}$ ]]; then
-    echo ""
-    return 0
-  fi
-  hrs=$((10#${hhmmss:0:2}))
-  mins=$((10#${hhmmss:2:2}))
-  secs=$((10#${hhmmss:4:2}))
-  if (( mins > 59 || secs > 59 )); then
-    echo ""
-    return 0
-  fi
-  echo $((hrs * 3600 + mins * 60 + secs))
+  # Wrapper for backwards compatibility with existing callers/tests.
+  dp_hhmmss_to_seconds "$1"
 }
 
 is_excluded_file() {
@@ -622,16 +568,12 @@ should_apply_global_override_for_sketch() {
   local current_sketch="$1"
   local one_based_index="$2"
 
-  if [[ "$override_mode" == "global" ]]; then
-    return 0
-  fi
-  if [[ "$override_mode" == "index" && "$one_based_index" -eq "$override_index_1_based" ]]; then
-    return 0
-  fi
-  if [[ "$override_mode" == "sketch" && "$(basename "$current_sketch")" == "$override_basename" ]]; then
-    return 0
-  fi
-  return 1
+  dp_should_apply_override \
+    "$override_mode" \
+    "$override_index_1_based" \
+    "$override_basename" \
+    "$current_sketch" \
+    "$one_based_index"
 }
 
 resolve_effective_duration() {

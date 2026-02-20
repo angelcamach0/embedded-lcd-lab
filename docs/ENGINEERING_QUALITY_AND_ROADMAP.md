@@ -9,6 +9,7 @@ This document captures current quality posture, critique, and next additions.
 3. Playlist duration resolution was refactored into reusable functions to reduce duplicate logic.
 4. Interactive playlist selection now applies once per run and does not reprompt every cycle.
 5. `--print-playlist-plan` was added for pre-run verification of resolved timing behavior.
+6. Duration parsing and override predicates were extracted into `scripts/lib/duration_policy.sh`.
 
 ## SOLID-Oriented Notes (Applied Pragmatically)
 
@@ -49,4 +50,3 @@ Use this command before long runs:
 ```
 
 It prints final sketch order and effective hold/timeout sources before any upload occurs.
-
