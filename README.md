@@ -233,6 +233,7 @@ Run this before pushing timing-related changes:
 
 ```bash
 ./scripts/tests/test_duration_policy.sh
+./scripts/tests/test_interactive_parser.sh
 ```
 
 ## Safety and liability
