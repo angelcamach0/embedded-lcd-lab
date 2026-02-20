@@ -14,11 +14,14 @@ SCRIPT_LIB="$PROJECT_ROOT/scripts/lib"
 ENV_FILE="${ENV_FILE:-$PROJECT_ROOT/.env}"
 DURATION_POLICY_LIB="$SCRIPT_LIB/duration_policy.sh"
 PORT_CONTROL_LIB="$SCRIPT_LIB/port_control.sh"
+INTERACTIVE_PLAYLIST_LIB="$SCRIPT_LIB/interactive_playlist.sh"
 
 # shellcheck source=./lib/duration_policy.sh
 source "$DURATION_POLICY_LIB"
 # shellcheck source=./lib/port_control.sh
 source "$PORT_CONTROL_LIB"
+# shellcheck source=./lib/interactive_playlist.sh
+source "$INTERACTIVE_PLAYLIST_LIB"
 
 trim_whitespace() {
   local s="$1"
@@ -473,22 +476,6 @@ refresh_discovery_if_enabled() {
   fi
 }
 
-interactive_override_seconds_for_sketch() {
-  # PRE: sketch_path is a discovered .ino file path.
-  # POST: echoes override seconds for matching basename or empty string.
-  local sketch_path="$1"
-  local base
-  base="$(basename "$sketch_path")"
-  local idx
-  for idx in "${!INTERACTIVE_OVERRIDE_NAMES[@]}"; do
-    if [[ "${INTERACTIVE_OVERRIDE_NAMES[$idx]}" == "$base" ]]; then
-      echo "${INTERACTIVE_OVERRIDE_SECONDS[$idx]}"
-      return 0
-    fi
-  done
-  echo ""
-}
-
 should_apply_global_override_for_sketch() {
   # PRE:
   # - override_mode set to one of: global/index/sketch/none.
@@ -591,50 +578,6 @@ print_playlist_plan() {
     echo "    hold: ${hold}s (${hold_source})"
     echo "    token-timeout: ${timeout}s (${timeout_source})"
   done
-}
-
-apply_interactive_playlist_selection() {
-  # Interactive pre-run selection flow:
-  # - choose which discovered sketches to run
-  # - optional timer-specific override durations
-  need_cmd python3
-
-  local tmp_out
-  tmp_out="$(mktemp)"
-  if ! python3 "$SCRIPT_LIB/playlist_interactive.py" "$SKETCH_ROOT" >"$tmp_out"; then
-    rm -f "$tmp_out"
-    echo "[!] Interactive playlist selection failed."
-    return 1
-  fi
-
-  local selected=()
-  INTERACTIVE_OVERRIDE_NAMES=()
-  INTERACTIVE_OVERRIDE_SECONDS=()
-
-  while IFS='|' read -r kind a b; do
-    case "$kind" in
-      SKETCH)
-        selected+=("$a")
-        ;;
-      OVERRIDE)
-        if [[ "$b" =~ ^[0-9]+$ ]]; then
-          INTERACTIVE_OVERRIDE_NAMES+=("$a")
-          INTERACTIVE_OVERRIDE_SECONDS+=("$b")
-        fi
-        ;;
-    esac
-  done < "$tmp_out"
-  rm -f "$tmp_out"
-
-  if [[ ${#selected[@]} -eq 0 ]]; then
-    echo "[!] Interactive selection returned zero sketches."
-    return 1
-  fi
-
-  SKETCHES=("${selected[@]}")
-  AUTO_DISCOVER_SKETCHES="false"
-  INTERACTIVE_SELECTION_APPLIED="true"
-  echo "[+] Interactive playlist enabled with ${#SKETCHES[@]} sketch(es)."
 }
 
 build_cache_key() {

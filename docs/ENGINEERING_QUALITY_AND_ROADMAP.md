@@ -11,6 +11,7 @@ This document captures current quality posture, critique, and next additions.
 5. `--print-playlist-plan` was added for pre-run verification of resolved timing behavior.
 6. Duration parsing and override predicates were extracted into `scripts/lib/duration_policy.sh`.
 7. Serial port lifecycle/retry helpers were extracted into `scripts/lib/port_control.sh`.
+8. Interactive playlist selection/override helpers were extracted into `scripts/lib/interactive_playlist.sh`.
 
 ## SOLID-Oriented Notes (Applied Pragmatically)
 
