@@ -809,28 +809,35 @@ main() {
       fi
 
       local hold="${DEFAULT_HOLD_SECONDS}"
+      local hold_source="default"
       if [[ "$i" -lt "${#HOLD_SECONDS[@]}" ]]; then
         hold="${HOLD_SECONDS[$i]}"
+        hold_source="array"
       fi
       local name_duration=""
       name_duration="$(duration_from_sketch_name "$current_sketch")"
       if [[ -n "$name_duration" ]]; then
         hold="$name_duration"
+        hold_source="filename_hhmmss"
       fi
 
       send_timer_start_if_applicable "$current_sketch" "$hold"
 
       if [[ "$WAIT_FOR_DONE" == "true" ]]; then
         local timeout="${DEFAULT_DONE_TIMEOUT_SECONDS}"
+        local timeout_source="default_done_timeout"
         if [[ "$i" -lt "${#DONE_TIMEOUT_SECONDS[@]}" ]]; then
           timeout="${DONE_TIMEOUT_SECONDS[$i]}"
+          timeout_source="done_timeout_array"
         elif [[ "$i" -lt "${#HOLD_SECONDS[@]}" ]]; then
           timeout="${HOLD_SECONDS[$i]}"
+          timeout_source="hold_array_fallback"
         fi
         if [[ -n "$name_duration" ]]; then
           timeout="$name_duration"
+          timeout_source="filename_hhmmss"
         fi
-        echo "[+] Waiting for token '${DONE_TOKEN}' (timeout: ${timeout}s)"
+        echo "[+] Waiting for token '${DONE_TOKEN}' (timeout: ${timeout}s, source: ${timeout_source})"
         if wait_for_done_token "$timeout"; then
           echo "[+] Done token received"
         else
@@ -844,7 +851,7 @@ main() {
           fi
         fi
       else
-        echo "[+] Running for ${hold}s"
+        echo "[+] Running for ${hold}s (source: ${hold_source})"
         if sleep_with_skip "${hold}"; then
           echo "[+] Space pressed: skipping to next sketch"
         fi
