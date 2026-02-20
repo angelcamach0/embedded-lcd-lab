@@ -131,6 +131,7 @@ INTERACTIVE_PLAYLIST="${INTERACTIVE_PLAYLIST:-false}"
 INTERACTIVE_OVERRIDE_NAMES=()
 INTERACTIVE_OVERRIDE_SECONDS=()
 ENABLE_TIMER_START_COMMAND="${ENABLE_TIMER_START_COMMAND:-true}"
+INTERACTIVE_SELECTION_APPLIED="false"
 # -------------------------------
 
 to_bool() {
@@ -585,13 +586,11 @@ refresh_discovery_if_enabled() {
   if [[ "$AUTO_DISCOVER_SKETCHES" == "true" ]]; then
     discover_sketches
   fi
-
-  if [[ "$INTERACTIVE_PLAYLIST" == "true" ]]; then
-    apply_interactive_playlist_selection
-  fi
 }
 
 interactive_override_seconds_for_sketch() {
+  # PRE: sketch_path is a discovered .ino file path.
+  # POST: echoes override seconds for matching basename or empty string.
   local sketch_path="$1"
   local base
   base="$(basename "$sketch_path")"
@@ -603,6 +602,65 @@ interactive_override_seconds_for_sketch() {
     fi
   done
   echo ""
+}
+
+should_apply_global_override_for_sketch() {
+  # PRE:
+  # - override_mode set to one of: global/index/sketch/none.
+  # - override selectors already validated during startup.
+  # POST:
+  # - returns 0 when a global override should apply to this sketch.
+  local current_sketch="$1"
+  local one_based_index="$2"
+
+  if [[ "$override_mode" == "global" ]]; then
+    return 0
+  fi
+  if [[ "$override_mode" == "index" && "$one_based_index" -eq "$override_index_1_based" ]]; then
+    return 0
+  fi
+  if [[ "$override_mode" == "sketch" && "$(basename "$current_sketch")" == "$override_basename" ]]; then
+    return 0
+  fi
+  return 1
+}
+
+resolve_effective_duration() {
+  # PRE:
+  # - current_sketch exists.
+  # - base_seconds already computed by caller for the current mode.
+  # POST:
+  # - echoes "<seconds>|<source>" where source is one of:
+  #   default,array,done_timeout_array,hold_array_fallback,filename_hhmmss,
+  #   global_override,interactive_override.
+  local current_sketch="$1"
+  local one_based_index="$2"
+  local base_seconds="$3"
+  local base_source="$4"
+
+  local effective="$base_seconds"
+  local source="$base_source"
+
+  local name_duration=""
+  name_duration="$(duration_from_sketch_name "$current_sketch")"
+  if [[ -n "$name_duration" ]]; then
+    effective="$name_duration"
+    source="filename_hhmmss"
+  fi
+
+  if [[ -n "$global_override_seconds" ]] && should_apply_global_override_for_sketch "$current_sketch" "$one_based_index"; then
+    effective="$global_override_seconds"
+    source="global_override"
+  fi
+
+  local interactive_override_seconds=""
+  interactive_override_seconds="$(interactive_override_seconds_for_sketch "$current_sketch")"
+  if [[ -n "$interactive_override_seconds" ]]; then
+    effective="$interactive_override_seconds"
+    source="interactive_override"
+  fi
+
+  echo "${effective}|${source}"
 }
 
 apply_interactive_playlist_selection() {
@@ -645,6 +703,7 @@ apply_interactive_playlist_selection() {
 
   SKETCHES=("${selected[@]}")
   AUTO_DISCOVER_SKETCHES="false"
+  INTERACTIVE_SELECTION_APPLIED="true"
   echo "[+] Interactive playlist enabled with ${#SKETCHES[@]} sketch(es)."
 }
 
@@ -884,6 +943,9 @@ main() {
   if [[ "$AUTO_DISCOVER_SKETCHES" == "true" ]]; then
     discover_sketches
   fi
+  if [[ "$INTERACTIVE_PLAYLIST" == "true" && "$INTERACTIVE_SELECTION_APPLIED" != "true" ]]; then
+    apply_interactive_playlist_selection
+  fi
 
   if [[ "$AUTO_DISCOVER_SKETCHES" != "true" && ${#SKETCHES[@]} -ne ${#HOLD_SECONDS[@]} ]]; then
     echo "[!] SKETCHES and HOLD_SECONDS length mismatch; using DEFAULT_HOLD_SECONDS=${DEFAULT_HOLD_SECONDS}s"
@@ -949,63 +1011,34 @@ main() {
         continue
       fi
 
-      local hold="${DEFAULT_HOLD_SECONDS}"
+      local hold_base="${DEFAULT_HOLD_SECONDS}"
+      local hold_base_source="default"
       if [[ "$i" -lt "${#HOLD_SECONDS[@]}" ]]; then
-        hold="${HOLD_SECONDS[$i]}"
+        hold_base="${HOLD_SECONDS[$i]}"
+        hold_base_source="array"
       fi
-      local name_duration=""
-      name_duration="$(duration_from_sketch_name "$current_sketch")"
-      if [[ -n "$name_duration" ]]; then
-        hold="$name_duration"
-      fi
-      if [[ -n "$global_override_seconds" ]]; then
-        local apply_override="false"
-        if [[ "$override_mode" == "global" ]]; then
-          apply_override="true"
-        elif [[ "$override_mode" == "index" && "$((i + 1))" -eq "$override_index_1_based" ]]; then
-          apply_override="true"
-        elif [[ "$override_mode" == "sketch" && "$(basename "$current_sketch")" == "$override_basename" ]]; then
-          apply_override="true"
-        fi
-        if [[ "$apply_override" == "true" ]]; then
-          hold="$global_override_seconds"
-        fi
-      fi
-      local interactive_override_seconds=""
-      interactive_override_seconds="$(interactive_override_seconds_for_sketch "$current_sketch")"
-      if [[ -n "$interactive_override_seconds" ]]; then
-        hold="$interactive_override_seconds"
-      fi
+      local hold_pair=""
+      hold_pair="$(resolve_effective_duration "$current_sketch" "$((i + 1))" "$hold_base" "$hold_base_source")"
+      local hold="${hold_pair%%|*}"
+      local hold_source="${hold_pair#*|}"
 
       send_timer_start_if_applicable "$current_sketch" "$hold"
 
       if [[ "$WAIT_FOR_DONE" == "true" ]]; then
-        local timeout="${DEFAULT_DONE_TIMEOUT_SECONDS}"
+        local timeout_base="${DEFAULT_DONE_TIMEOUT_SECONDS}"
+        local timeout_base_source="default_done_timeout"
         if [[ "$i" -lt "${#DONE_TIMEOUT_SECONDS[@]}" ]]; then
-          timeout="${DONE_TIMEOUT_SECONDS[$i]}"
+          timeout_base="${DONE_TIMEOUT_SECONDS[$i]}"
+          timeout_base_source="done_timeout_array"
         elif [[ "$i" -lt "${#HOLD_SECONDS[@]}" ]]; then
-          timeout="${HOLD_SECONDS[$i]}"
+          timeout_base="${HOLD_SECONDS[$i]}"
+          timeout_base_source="hold_array_fallback"
         fi
-        if [[ -n "$name_duration" ]]; then
-          timeout="$name_duration"
-        fi
-        if [[ -n "$global_override_seconds" ]]; then
-          local apply_override_timeout="false"
-          if [[ "$override_mode" == "global" ]]; then
-            apply_override_timeout="true"
-          elif [[ "$override_mode" == "index" && "$((i + 1))" -eq "$override_index_1_based" ]]; then
-            apply_override_timeout="true"
-          elif [[ "$override_mode" == "sketch" && "$(basename "$current_sketch")" == "$override_basename" ]]; then
-            apply_override_timeout="true"
-          fi
-          if [[ "$apply_override_timeout" == "true" ]]; then
-            timeout="$global_override_seconds"
-          fi
-        fi
-        if [[ -n "$interactive_override_seconds" ]]; then
-          timeout="$interactive_override_seconds"
-        fi
-        echo "[+] Waiting for token '${DONE_TOKEN}' (timeout: ${timeout}s)"
+        local timeout_pair=""
+        timeout_pair="$(resolve_effective_duration "$current_sketch" "$((i + 1))" "$timeout_base" "$timeout_base_source")"
+        local timeout="${timeout_pair%%|*}"
+        local timeout_source="${timeout_pair#*|}"
+        echo "[+] Waiting for token '${DONE_TOKEN}' (timeout: ${timeout}s, source: ${timeout_source})"
         if wait_for_done_token "$timeout"; then
           echo "[+] Done token received"
         else
@@ -1019,7 +1052,7 @@ main() {
           fi
         fi
       else
-        echo "[+] Running for ${hold}s"
+        echo "[+] Running for ${hold}s (source: ${hold_source})"
         if sleep_with_skip "${hold}"; then
           echo "[+] Space pressed: skipping to next sketch"
         fi
