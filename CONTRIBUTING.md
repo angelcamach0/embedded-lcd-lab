@@ -4,13 +4,25 @@ Thanks for contributing.
 
 ## Workflow
 
-1. Fork the repo.
-2. Create a feature branch.
-3. Keep changes focused and small.
-4. Open a pull request with:
+1. Open or create a GitHub issue first (bug or feature), even for small fixes.
+2. Create a branch from `main` linked to that issue.
+3. Keep changes focused and small (one concern per commit when possible).
+4. Validate locally before commit.
+5. Commit with a clear message that explains intent.
+6. Open a pull request with:
    - what changed
    - why
    - how you tested
+7. Add a resolution comment on the issue with commit reference(s), then close it.
+
+### Issue-First Rule (project convention)
+
+For this project, bug fixes should have an issue created before implementation so repo history clearly tracks:
+
+1. symptom/reproduction
+2. root cause
+3. applied fix
+4. verification
 
 ## Coding guidelines
 
@@ -22,8 +34,9 @@ Thanks for contributing.
 ## Testing checklist
 
 1. `bash -n scripts/run_playlist.sh`
-2. Compile changed sketches with `arduino-cli compile`.
-3. If behavior changes on hardware, include before/after notes.
+2. `./scripts/tests/test_duration_policy.sh`
+3. Compile changed sketches with `arduino-cli compile`.
+4. If behavior changes on hardware, include before/after notes.
 
 ## Documentation
 

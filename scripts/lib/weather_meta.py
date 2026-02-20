@@ -32,21 +32,29 @@ STATE_ABBR = {
 
 
 def fetch_text(url: str, timeout: int = 8) -> str:
+    # PRE: url is a complete HTTP(S) endpoint string.
+    # POST: returns stripped response text or propagates transport errors.
     req = urllib.request.Request(url, headers={"User-Agent": "embedded-lcd-lab"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read().decode("utf-8", "ignore").strip()
 
 
 def fetch_json(url: str, timeout: int = 8):
+    # PRE: endpoint returns JSON payload.
+    # POST: parsed JSON object/dict is returned.
     return json.loads(fetch_text(url, timeout=timeout))
 
 
 def clean_ascii(s: str) -> str:
+    # PRE: input may include unicode/whitespace from upstream APIs.
+    # POST: returns printable ASCII-only string for stable LCD rendering.
     s = (s or "").strip()
     return "".join(ch for ch in s if 32 <= ord(ch) <= 126)
 
 
 def state_tag(admin1: str, country_code: str) -> str:
+    # PRE: admin1/country_code may be empty or noisy.
+    # POST: returns 2-char region tag fallback-safe for LCD header.
     admin1 = clean_ascii(admin1)
     cc = clean_ascii(country_code).upper()
     if cc == "US":
@@ -71,6 +79,11 @@ def try_ip_geolocation(target_ip: str):
     # - explicit IP mode: /<ip>/json/
     # Returns tuple: (lat, lon, city, tag) or None on failure.
     try:
+        # PRE:
+        # - target_ip is either empty (auto mode) or a candidate IP string.
+        # POST:
+        # - returns tuple(lat, lon, city, tag) on success.
+        # - returns None on validation/provider failures.
         url = "https://ipapi.co/json/"
         if target_ip:
             # Strict IP format validation (IPv4 or IPv6).
@@ -97,6 +110,10 @@ def try_ip_geolocation(target_ip: str):
     return None
 
 # 1) Resolve location metadata.
+# PRE:
+# - location inputs are CLI-derived strings.
+# POST:
+# - best-effort coordinates/city/tag/source are resolved via priority chain.
 try:
     # Priority 1: explicit coordinates (strongest override).
     if lat_arg and lon_arg:
@@ -138,6 +155,8 @@ except Exception as exc:
     print(f"[weather] geocode failed: {exc}", file=sys.stderr)
 
 # 2) Open-Meteo current temperature.
+# PRE: lat/lon are set from resolver step.
+# POST: prints weather|city|tag|source and exits on success.
 try:
     if lat is None or lon is None:
         raise RuntimeError("missing coordinates")
@@ -154,6 +173,8 @@ except Exception as exc:
     print(f"[weather] open-meteo failed: {exc}", file=sys.stderr)
 
 # 3) Fallback to wttr.in.
+# PRE: Open-Meteo path failed.
+# POST: best-effort fallback output; final line always printed.
 try:
     q = urllib.parse.quote(city)
     wttr = fetch_text(f"https://wttr.in/{q}?format=%t", timeout=8)

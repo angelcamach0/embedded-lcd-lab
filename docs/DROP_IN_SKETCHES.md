@@ -28,6 +28,7 @@ Optional duration suffix:
    - flag: `--enable-legacy-ttt-duration true`
    - or env: `ENABLE_LEGACY_TTT_DURATION=true`
 7. If suffix is missing or invalid, script falls back to existing default behavior.
+8. Runtime logs now print the resolved timing source (`filename_hhmmss`, array/default fallback) for easier verification.
 
 Built-in serial weather behavior:
 
@@ -35,6 +36,11 @@ Built-in serial weather behavior:
    `04_lcd_city_datetime_temp_feed_*.ino`
 2. It remains in normal discovery order.
 3. When that sketch is active, the host script pushes weather/time lines for `SERIAL_FEED_SECONDS`.
+4. Runtime duration for the weather sketch follows the same precedence as other sketches:
+   - interactive override
+   - global/index/sketch override flags
+   - filename `_HHMMSS`
+   - `SERIAL_FEED_SECONDS` fallback
 
 ## Add a new sketch
 
@@ -77,6 +83,10 @@ then you can run token-driven switching:
 10. `PRECOMPILE_ONCE=true|false` (reuse compiled artifacts across cycles)
 11. `UPLOAD_SETTLE_SECONDS=0.9` (small delay after upload for serial stability)
 12. `ENABLE_LEGACY_TTT_DURATION=true|false` (default false)
+13. `DURATION_OVERRIDE_HHMMSS=HHMMSS` (optional global runtime override)
+14. `OVERRIDE_INDEX=N` (optional 1-based target index for override)
+15. `OVERRIDE_SKETCH=name.ino` (optional basename target for override)
+16. `INTERACTIVE_PLAYLIST=true|false` (interactive pre-run selection)
 
 Equivalent CLI flags are also supported:
 
@@ -91,6 +101,12 @@ Equivalent CLI flags are also supported:
 9. `--precompile-once true|false`
 10. `--upload-settle-seconds 0.9`
 11. `--enable-legacy-ttt-duration true|false`
+12. `--duration-override-hhmmss HHMMSS`
+13. `--override-index N` (1-based)
+14. `--override-sketch NAME.ino`
+15. `--override-index` and `--override-sketch` are mutually exclusive.
+16. `--interactive-playlist true|false`
+17. `--print-playlist-plan true|false` (preview effective timing/order and exit)
 
 ## Common pitfalls
 
@@ -99,9 +115,13 @@ Equivalent CLI flags are also supported:
 3. Keep Arduino IDE Serial Monitor closed during playlist runs.
 4. Space key skip always overrides current wait/hold path and advances to next stage.
 5. If `WAIT_FOR_DONE=true` and a duration suffix exists, that duration becomes token timeout for that sketch.
+6. Duration precedence can be misread; verify effective values with:
+   - `./scripts/run_playlist.sh --print-playlist-plan true`
+7. Very large timer values are accepted, but LCD display is fixed to `HH:MM:SS` width.
 
 ## See also
 
 1. [`SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md)
 2. [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
 3. [`../README.md`](../README.md)
+4. [`ENGINEERING_QUALITY_AND_ROADMAP.md`](ENGINEERING_QUALITY_AND_ROADMAP.md)

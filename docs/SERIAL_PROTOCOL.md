@@ -9,6 +9,7 @@ This document defines the current host <-> Arduino serial behavior used by the p
 1. `src/playlist/04_lcd_city_datetime_temp_feed_*.ino` input format
 2. Host sender behavior from [`scripts/lib/serial_feed.py`](../scripts/lib/serial_feed.py)
 3. Playlist completion token behavior (`PLAYLIST_DONE`)
+4. Timer command protocol for `src/playlist/06_lcd_afoqt_timer_*.ino`
 
 ## Transport
 
@@ -36,6 +37,13 @@ Rules:
 1. Input buffer max: `64` characters (`INPUT_MAX`).
 2. On overflow, parser resets buffer to avoid partial/stale frame rendering.
 3. Firmware uses fixed-size buffers (no dynamic `String` parsing in this path).
+
+Timer command safety (AFOQT timer sketch):
+
+1. Rejects malformed timer command frames with `NACK:TIMER|...`.
+2. Validates `HHMMSS` length and `MM/SS` bounds.
+3. Validates `SECONDS` payload is integer-only.
+4. Ignores unsupported verbs without crashing parser loop.
 
 ## Current host behavior
 
@@ -72,14 +80,40 @@ Host behavior:
 2. For future command protocol, use explicit verb prefix, for example:
    - `CMD:SHOW|line1|line2`
    - `CMD:SCENE|name`
+   - `CMD:TIMER|START|SECONDS|1800`
 3. Add strict verb allowlist and bounded payload validation in firmware and host.
+4. Host parsers should ignore unknown serial lines unless they match explicit control tokens.
+
+## Timer command protocol
+
+Timer sketches accept newline-delimited commands:
+
+1. `CMD:TIMER|START|SECONDS|<N>`
+2. `CMD:TIMER|START|HHMMSS|<HHMMSS>`
+3. `CMD:TIMER|PAUSE`
+4. `CMD:TIMER|RESUME`
+5. `CMD:TIMER|RESET`
+6. `CMD:TIMER|STOP`
+7. `CMD:TIMER|PING`
+
+Responses:
+
+1. `ACK:TIMER|<VERB>` on accepted command
+2. `NACK:TIMER|<CODE>` on validation or format failure
+3. `PLAYLIST_DONE` when countdown reaches zero
+
+Safety behavior:
+
+1. Serial-silence fallback applies only while timer is `Paused`.
+2. Active `Running` countdown is not interrupted by command silence.
 
 ## See also
 
 1. [`../scripts/lib/serial_feed.py`](../scripts/lib/serial_feed.py)
 2. [`../scripts/lib/token_watcher.py`](../scripts/lib/token_watcher.py)
-3. [`codeflows/src_lcd_serial_feed_code_flow.md`](codeflows/src_lcd_serial_feed_code_flow.md) firmware parser flow
-4. [`codeflows/scripts_lib_serial_feed_code_flow.md`](codeflows/scripts_lib_serial_feed_code_flow.md) host sender flow
-5. [`codeflows/scripts_lib_token_watcher_code_flow.md`](codeflows/scripts_lib_token_watcher_code_flow.md) done-token watcher flow
-6. [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
-7. [`FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`](FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md)
+3. [`../scripts/lib/timer_control.py`](../scripts/lib/timer_control.py)
+4. [`codeflows/src_lcd_serial_feed_code_flow.md`](codeflows/src_lcd_serial_feed_code_flow.md) firmware parser flow
+5. [`codeflows/scripts_lib_serial_feed_code_flow.md`](codeflows/scripts_lib_serial_feed_code_flow.md) host sender flow
+6. [`codeflows/scripts_lib_token_watcher_code_flow.md`](codeflows/scripts_lib_token_watcher_code_flow.md) done-token watcher flow
+7. [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
+8. [`FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md`](FUTURE_IDEAS_AND_IMPLEMENTATION_PLAN.md)
