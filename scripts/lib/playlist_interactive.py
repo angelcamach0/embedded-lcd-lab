@@ -48,14 +48,18 @@ def discover_items(sketch_root: Path) -> list[PlaylistItem]:
 def ask_yes_no(prompt: str, default_yes: bool = True) -> bool:
     suffix = "[Y/n]" if default_yes else "[y/N]"
     while True:
-        raw = input(f"{prompt} {suffix} ").strip().lower()
+        try:
+            print(f"{prompt} {suffix} ", end="", file=sys.stderr, flush=True)
+            raw = input().strip().lower()
+        except EOFError:
+            return default_yes
         if not raw:
             return default_yes
         if raw in {"y", "yes"}:
             return True
         if raw in {"n", "no"}:
             return False
-        print("Please answer y or n.")
+        print("Please answer y or n.", file=sys.stderr)
 
 
 def parse_remove_indices(raw: str, max_index: int) -> list[int]:
@@ -101,31 +105,35 @@ def main() -> int:
         print("[interactive] no .ino files discovered", file=sys.stderr)
         return 2
 
-    print("\nDiscovered sketches:")
+    print("\nDiscovered sketches:", file=sys.stderr)
     for it in items:
         marker = " (timer)" if it.is_timer else ""
-        print(f"  {it.index:>2}. {it.basename}{marker}")
+        print(f"  {it.index:>2}. {it.basename}{marker}", file=sys.stderr)
 
     run_all = ask_yes_no("Run all discovered sketches?", default_yes=True)
     if not run_all:
         while True:
             enabled = [it for it in items if it.enabled]
             if not enabled:
-                print("You removed all sketches. Keeping previous selection.")
+                print("You removed all sketches. Keeping previous selection.", file=sys.stderr)
                 for it in items:
                     it.enabled = True
                 break
 
-            print("\nCurrently enabled:")
+            print("\nCurrently enabled:", file=sys.stderr)
             for it in enabled:
                 marker = " (timer)" if it.is_timer else ""
-                print(f"  {it.index:>2}. {it.basename}{marker}")
+                print(f"  {it.index:>2}. {it.basename}{marker}", file=sys.stderr)
 
-            raw = input("Enter index or comma list to remove (e.g. 2 or 2,4): ").strip()
+            try:
+                print("Enter index or comma list to remove (e.g. 2 or 2,4): ", end="", file=sys.stderr, flush=True)
+                raw = input().strip()
+            except EOFError:
+                break
             try:
                 to_remove = parse_remove_indices(raw, len(items))
             except ValueError as exc:
-                print(f"Invalid input: {exc}")
+                print(f"Invalid input: {exc}", file=sys.stderr)
                 continue
 
             for idx in to_remove:
@@ -137,11 +145,15 @@ def main() -> int:
     for it in [x for x in items if x.enabled and x.is_timer]:
         if ask_yes_no(f"Override preconfigured time for {it.basename}?", default_yes=False):
             while True:
-                v = input("Enter HHMMSS (example 003000 = 30 minutes): ").strip()
+                try:
+                    print("Enter HHMMSS (example 003000 = 30 minutes): ", end="", file=sys.stderr, flush=True)
+                    v = input().strip()
+                except EOFError:
+                    v = ""
                 if is_valid_hhmmss(v):
                     it.override_hhmmss = v
                     break
-                print("Invalid HHMMSS. Format must be 6 digits with MM/SS <= 59.")
+                print("Invalid HHMMSS. Format must be 6 digits with MM/SS <= 59.", file=sys.stderr)
 
     # Machine-readable output for shell caller.
     for it in items:
@@ -154,4 +166,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
