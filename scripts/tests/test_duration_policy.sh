@@ -48,6 +48,7 @@ echo "[+] Running duration policy checks"
 assert_eq "10" "$(hhmmss_to_seconds "000010")" "HHMMSS 000010"
 assert_eq "1800" "$(hhmmss_to_seconds "003000")" "HHMMSS 003000"
 assert_eq "420" "$(hhmmss_to_seconds "000700")" "HHMMSS 000700"
+assert_eq "359999" "$(hhmmss_to_seconds "995959")" "HHMMSS max display-safe bound"
 assert_empty "$(hhmmss_to_seconds "006060")" "HHMMSS invalid mm/ss"
 assert_empty "$(hhmmss_to_seconds "12345")" "HHMMSS invalid length"
 

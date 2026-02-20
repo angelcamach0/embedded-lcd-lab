@@ -28,6 +28,7 @@ Optional duration suffix:
    - flag: `--enable-legacy-ttt-duration true`
    - or env: `ENABLE_LEGACY_TTT_DURATION=true`
 7. If suffix is missing or invalid, script falls back to existing default behavior.
+8. Runtime logs now print the resolved timing source (`filename_hhmmss`, array/default fallback) for easier verification.
 
 Built-in serial weather behavior:
 
