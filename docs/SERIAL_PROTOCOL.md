@@ -43,6 +43,7 @@ Timer command safety (AFOQT timer sketch):
 2. Validates `HHMMSS` length and `MM/SS` bounds.
 3. Validates `SECONDS` payload is integer-only.
 4. Ignores unsupported verbs without crashing parser loop.
+5. If serial command channel is silent too long while running/paused, sketch falls back to idle state.
 
 ## Current host behavior
 

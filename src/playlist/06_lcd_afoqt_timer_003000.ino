@@ -15,6 +15,7 @@ namespace {
 
 constexpr unsigned long kDefaultDurationSeconds = 30UL * 60UL;  // 00:30:00
 constexpr unsigned long kTickMs = 1000UL;
+constexpr unsigned long kSerialSilenceIdleMs = 5UL * 60UL * 1000UL;
 constexpr size_t kInputMax = 64;
 
 enum class TimerState : uint8_t {
@@ -28,6 +29,7 @@ TimerState timerState = TimerState::Idle;
 unsigned long initialSeconds = kDefaultDurationSeconds;
 unsigned long remainingSeconds = kDefaultDurationSeconds;
 unsigned long lastTickMs = 0UL;
+unsigned long lastCommandMs = 0UL;
 
 char serialBuf[kInputMax + 1];
 size_t serialLen = 0;
@@ -114,6 +116,7 @@ void startWithSeconds(unsigned long seconds) {
   initialSeconds = seconds;
   remainingSeconds = seconds;
   lastTickMs = millis();
+  lastCommandMs = lastTickMs;
   timerState = (seconds == 0UL) ? TimerState::Done : TimerState::Running;
   if (timerState == TimerState::Done) {
     renderDone();
@@ -170,6 +173,7 @@ void handleTimerCommand(char* line) {
   if (strcmp(verb, "PAUSE") == 0) {
     if (timerState == TimerState::Running) {
       timerState = TimerState::Paused;
+      lastCommandMs = millis();
       renderPaused();
     }
     ack("PAUSE");
@@ -180,6 +184,7 @@ void handleTimerCommand(char* line) {
     if (timerState == TimerState::Paused) {
       timerState = TimerState::Running;
       lastTickMs = millis();
+      lastCommandMs = lastTickMs;
       renderTimer();
     }
     ack("RESUME");
@@ -194,12 +199,14 @@ void handleTimerCommand(char* line) {
 
   if (strcmp(verb, "STOP") == 0) {
     timerState = TimerState::Idle;
+    lastCommandMs = millis();
     renderIdle();
     ack("STOP");
     return;
   }
 
   if (strcmp(verb, "PING") == 0) {
+    lastCommandMs = millis();
     ack("PING");
     return;
   }
@@ -258,17 +265,30 @@ void tickTimer() {
   renderTimer();
 }
 
+void enforceSerialSilenceFallback() {
+  if (timerState != TimerState::Running && timerState != TimerState::Paused) {
+    return;
+  }
+  const unsigned long now = millis();
+  if ((now - lastCommandMs) >= kSerialSilenceIdleMs) {
+    timerState = TimerState::Idle;
+    renderIdle();
+    nack("SERIAL_TIMEOUT");
+  }
+}
+
 }  // namespace
 
 void setup() {
   Serial.begin(9600);
   lcdlab::beginDefault16x2(lcd);
   lcd.clear();
+  lastCommandMs = millis();
   renderIdle();
 }
 
 void loop() {
   processSerial();
   tickTimer();
+  enforceSerialSilenceFallback();
 }
-
