@@ -130,6 +130,7 @@ INTERACTIVE_PLAYLIST="${INTERACTIVE_PLAYLIST:-false}"
 
 INTERACTIVE_OVERRIDE_NAMES=()
 INTERACTIVE_OVERRIDE_SECONDS=()
+ENABLE_TIMER_START_COMMAND="${ENABLE_TIMER_START_COMMAND:-true}"
 # -------------------------------
 
 to_bool() {
@@ -164,6 +165,7 @@ Flags:
   --override-index <N>                 Apply override to discovered index N only
   --override-sketch <name.ino>         Apply override to specific sketch basename
   --interactive-playlist <true|false>  Prompt for sketch selection before run
+  --enable-timer-start-command <true|false>
   --serial-feed-sketch <path-or-file>
   --help
 EOF
@@ -270,6 +272,13 @@ parse_args() {
       --interactive-playlist)
         INTERACTIVE_PLAYLIST="$(to_bool "${2:-}")" || {
           echo "Invalid value for --interactive-playlist: ${2:-}"
+          exit 2
+        }
+        shift 2
+        ;;
+      --enable-timer-start-command)
+        ENABLE_TIMER_START_COMMAND="$(to_bool "${2:-}")" || {
+          echo "Invalid value for --enable-timer-start-command: ${2:-}"
           exit 2
         }
         shift 2
@@ -832,6 +841,31 @@ run_serial_feed_py() {
   python3 "$SCRIPT_LIB/serial_feed.py" "$1" "$2" "$3" "$4" "$5"
 }
 
+is_afoqt_timer_sketch() {
+  # Timer control commands are sent only to dedicated AFOQT timer sketches.
+  local sketch_path="$1"
+  local base
+  base="$(basename "$sketch_path")"
+  [[ "$base" =~ _afoqt_timer_ ]]
+}
+
+send_timer_start_if_applicable() {
+  local current_sketch="$1"
+  local hold_seconds="$2"
+
+  if [[ "$ENABLE_TIMER_START_COMMAND" != "true" ]]; then
+    return 0
+  fi
+
+  if ! is_afoqt_timer_sketch "$current_sketch"; then
+    return 0
+  fi
+
+  need_cmd python3
+  echo "[+] Sending timer start command: ${hold_seconds}s"
+  python3 "$SCRIPT_LIB/timer_control.py" "$PORT" START_SECONDS "$hold_seconds" || true
+}
+
 main() {
   # Main playlist engine:
   # 1) upload sketch
@@ -942,6 +976,8 @@ main() {
       if [[ -n "$interactive_override_seconds" ]]; then
         hold="$interactive_override_seconds"
       fi
+
+      send_timer_start_if_applicable "$current_sketch" "$hold"
 
       if [[ "$WAIT_FOR_DONE" == "true" ]]; then
         local timeout="${DEFAULT_DONE_TIMEOUT_SECONDS}"

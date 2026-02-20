@@ -87,6 +87,7 @@ Examples with flags:
 ./run_playlist.sh --duration-override-hhmmss 003000 --override-index 2
 ./run_playlist.sh --duration-override-hhmmss 003000 --override-sketch 03_lcd_wakeup_reveal_000030.ino
 ./run_playlist.sh --interactive-playlist true
+./run_playlist.sh --enable-timer-start-command true
 ```
 
 Default runtime behavior (no flags):
@@ -179,6 +180,7 @@ Main runtime config is at the top of [`scripts/run_playlist.sh`](scripts/run_pla
 12. `DURATION_OVERRIDE_HHMMSS`
 13. `OVERRIDE_INDEX`, `OVERRIDE_SKETCH`
 14. `INTERACTIVE_PLAYLIST`
+15. `ENABLE_TIMER_START_COMMAND`
 
 Preferred config path for users:
 1. Copy [`.env.example`](.env.example) to `.env`
