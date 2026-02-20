@@ -69,10 +69,13 @@ Host behavior:
 ## Compatibility and extension guidance
 
 1. Keep existing `line1|line2\n` format backward-compatible.
-2. For future command protocol, use explicit verb prefix, for example:
+2. For command protocol, use explicit verb prefix, for example:
    - `CMD:SHOW|line1|line2`
    - `CMD:SCENE|name`
+   - `CMD:TIMER|START|HHMMSS|003000`
 3. Add strict verb allowlist and bounded payload validation in firmware and host.
+
+For timer-specific contract details, see [`AFOQT_TIMER_PROTOCOL.md`](AFOQT_TIMER_PROTOCOL.md).
 
 ## See also
 
