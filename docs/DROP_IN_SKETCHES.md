@@ -78,6 +78,8 @@ then you can run token-driven switching:
 11. `UPLOAD_SETTLE_SECONDS=0.9` (small delay after upload for serial stability)
 12. `ENABLE_LEGACY_TTT_DURATION=true|false` (default false)
 13. `DURATION_OVERRIDE_HHMMSS=HHMMSS` (optional global runtime override)
+14. `OVERRIDE_INDEX=N` (optional 1-based target index for override)
+15. `OVERRIDE_SKETCH=name.ino` (optional basename target for override)
 
 Equivalent CLI flags are also supported:
 
@@ -93,6 +95,9 @@ Equivalent CLI flags are also supported:
 10. `--upload-settle-seconds 0.9`
 11. `--enable-legacy-ttt-duration true|false`
 12. `--duration-override-hhmmss HHMMSS`
+13. `--override-index N` (1-based)
+14. `--override-sketch NAME.ino`
+15. `--override-index` and `--override-sketch` are mutually exclusive.
 
 ## Common pitfalls
 

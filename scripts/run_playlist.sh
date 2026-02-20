@@ -124,6 +124,8 @@ PRECOMPILE_ONCE="${PRECOMPILE_ONCE:-true}"
 BUILD_CACHE_ROOT="${BUILD_CACHE_ROOT:-/tmp/embedded-lcd-lab-build}"
 ENABLE_LEGACY_TTT_DURATION="${ENABLE_LEGACY_TTT_DURATION:-false}"
 DURATION_OVERRIDE_HHMMSS="${DURATION_OVERRIDE_HHMMSS:-}"
+OVERRIDE_INDEX="${OVERRIDE_INDEX:-}"
+OVERRIDE_SKETCH="${OVERRIDE_SKETCH:-}"
 # -------------------------------
 
 to_bool() {
@@ -155,6 +157,8 @@ Flags:
   --precompile-once <true|false> Compile once and reuse build artifacts (default true)
   --enable-legacy-ttt-duration <true|false>
   --duration-override-hhmmss <HHMMSS>  Global runtime duration override
+  --override-index <N>                 Apply override to discovered index N only
+  --override-sketch <name.ino>         Apply override to specific sketch basename
   --serial-feed-sketch <path-or-file>
   --help
 EOF
@@ -244,6 +248,18 @@ parse_args() {
         ;;
       --duration-override-hhmmss)
         DURATION_OVERRIDE_HHMMSS="${2:-}"
+        shift 2
+        ;;
+      --override-index)
+        OVERRIDE_INDEX="${2:-}"
+        if [[ ! "$OVERRIDE_INDEX" =~ ^[0-9]+$ ]]; then
+          echo "Invalid value for --override-index: ${2:-}"
+          exit 2
+        fi
+        shift 2
+        ;;
+      --override-sketch)
+        OVERRIDE_SKETCH="${2:-}"
         shift 2
         ;;
       --serial-feed-sketch)
@@ -767,6 +783,9 @@ main() {
   fi
 
   local global_override_seconds=""
+  local override_mode="none"
+  local override_index_1_based=0
+  local override_basename=""
   if [[ -n "$DURATION_OVERRIDE_HHMMSS" ]]; then
     global_override_seconds="$(hhmmss_to_seconds "$DURATION_OVERRIDE_HHMMSS")"
     if [[ -z "$global_override_seconds" ]]; then
@@ -774,7 +793,22 @@ main() {
       echo "[!] Expected HHMMSS with MM/SS <= 59, e.g. 003000"
       return 2
     fi
-    echo "[+] Global duration override active: ${DURATION_OVERRIDE_HHMMSS} (${global_override_seconds}s)"
+    if [[ -n "$OVERRIDE_INDEX" && -n "$OVERRIDE_SKETCH" ]]; then
+      echo "[!] Use either --override-index or --override-sketch, not both."
+      return 2
+    fi
+    if [[ -n "$OVERRIDE_INDEX" ]]; then
+      override_mode="index"
+      override_index_1_based="$OVERRIDE_INDEX"
+      echo "[+] Duration override active for index ${override_index_1_based}: ${DURATION_OVERRIDE_HHMMSS} (${global_override_seconds}s)"
+    elif [[ -n "$OVERRIDE_SKETCH" ]]; then
+      override_mode="sketch"
+      override_basename="$(basename "$OVERRIDE_SKETCH")"
+      echo "[+] Duration override active for sketch ${override_basename}: ${DURATION_OVERRIDE_HHMMSS} (${global_override_seconds}s)"
+    else
+      override_mode="global"
+      echo "[+] Global duration override active: ${DURATION_OVERRIDE_HHMMSS} (${global_override_seconds}s)"
+    fi
   fi
 
   local cycle=0
@@ -818,7 +852,17 @@ main() {
         hold="$name_duration"
       fi
       if [[ -n "$global_override_seconds" ]]; then
-        hold="$global_override_seconds"
+        local apply_override="false"
+        if [[ "$override_mode" == "global" ]]; then
+          apply_override="true"
+        elif [[ "$override_mode" == "index" && "$((i + 1))" -eq "$override_index_1_based" ]]; then
+          apply_override="true"
+        elif [[ "$override_mode" == "sketch" && "$(basename "$current_sketch")" == "$override_basename" ]]; then
+          apply_override="true"
+        fi
+        if [[ "$apply_override" == "true" ]]; then
+          hold="$global_override_seconds"
+        fi
       fi
 
       if [[ "$WAIT_FOR_DONE" == "true" ]]; then
@@ -832,7 +876,17 @@ main() {
           timeout="$name_duration"
         fi
         if [[ -n "$global_override_seconds" ]]; then
-          timeout="$global_override_seconds"
+          local apply_override_timeout="false"
+          if [[ "$override_mode" == "global" ]]; then
+            apply_override_timeout="true"
+          elif [[ "$override_mode" == "index" && "$((i + 1))" -eq "$override_index_1_based" ]]; then
+            apply_override_timeout="true"
+          elif [[ "$override_mode" == "sketch" && "$(basename "$current_sketch")" == "$override_basename" ]]; then
+            apply_override_timeout="true"
+          fi
+          if [[ "$apply_override_timeout" == "true" ]]; then
+            timeout="$global_override_seconds"
+          fi
         fi
         echo "[+] Waiting for token '${DONE_TOKEN}' (timeout: ${timeout}s)"
         if wait_for_done_token "$timeout"; then
