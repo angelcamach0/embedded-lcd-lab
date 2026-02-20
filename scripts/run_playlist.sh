@@ -1049,6 +1049,8 @@ main() {
 
   local cycle=0
   while true; do
+    # PRE: runtime config and overrides are finalized.
+    # POST: one full cycle processes current sketch list in order.
     cleanup_background_jobs
     force_release_port_if_owned_by_helpers
     wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS" >/dev/null 2>&1 || true
@@ -1058,6 +1060,10 @@ main() {
     echo "[+] Tip: press Space to skip to next item"
 
     for i in "${!SKETCHES[@]}"; do
+      # PRE: i references a valid item in SKETCHES for this cycle snapshot.
+      # POST:
+      # - sketch is uploaded (or skipped/continued on recoverable conditions),
+      # - one of hold/token/feed paths is executed before advancing.
       local current_sketch="${SKETCHES[$i]}"
       if [[ ! -f "$current_sketch" ]]; then
         if [[ "$AUTO_DISCOVER_SKETCHES" == "true" ]]; then

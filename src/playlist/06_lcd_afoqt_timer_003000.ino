@@ -288,8 +288,11 @@ void tickTimer() {
 
 void enforceSerialSilenceFallback() {
   // PRE: lastCommandMs tracks latest command/heartbeat event.
-  // POST: running/paused timer re-enters Idle after silence threshold.
-  if (timerState != TimerState::Running && timerState != TimerState::Paused) {
+  // POST: paused timer can re-enter Idle after silence threshold.
+  // NOTE:
+  // - Running timers are intentionally excluded so long exams are not cut
+  //   short when no further serial commands are sent from the host.
+  if (timerState != TimerState::Paused) {
     return;
   }
   const unsigned long now = millis();

@@ -270,6 +270,24 @@ Relative links under `docs/` and `docs/codeflows/` were rewritten as if they wer
 1. Corrected relative path prefixes (`../` and `../../`) for docs subfolders.
 2. Ran full markdown-link validation pass to confirm no missing internal links.
 
+## 17) AFOQT timer unexpectedly drops to `IDLE` after ~5 minutes
+
+### Symptoms
+
+- Timer starts at expected value (for example `00:30:00`) but returns to `IDLE` around 5 minutes in.
+
+### Why it happened
+
+Older timer firmware applied serial-silence fallback to both `Running` and `Paused`.
+If no command arrived for 5 minutes, it forced `IDLE`.
+
+### How we fixed it
+
+1. Timer firmware now applies silence fallback only while `Paused`.
+2. Running countdowns are no longer interrupted by command silence.
+3. Re-upload the updated timer sketch:
+   - [`src/playlist/06_lcd_afoqt_timer_003000.ino`](../src/playlist/06_lcd_afoqt_timer_003000.ino)
+
 ## See also
 
 1. [`REPLICATION_REQUIREMENTS.md`](REPLICATION_REQUIREMENTS.md)

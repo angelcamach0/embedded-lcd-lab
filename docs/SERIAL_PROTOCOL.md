@@ -9,6 +9,7 @@ This document defines the current host <-> Arduino serial behavior used by the p
 1. `src/playlist/04_lcd_city_datetime_temp_feed_*.ino` input format
 2. Host sender behavior from [`scripts/lib/serial_feed.py`](../scripts/lib/serial_feed.py)
 3. Playlist completion token behavior (`PLAYLIST_DONE`)
+4. Timer command protocol for `src/playlist/06_lcd_afoqt_timer_*.ino`
 
 ## Transport
 
@@ -74,6 +75,29 @@ Host behavior:
    - `CMD:SCENE|name`
    - `CMD:TIMER|START|SECONDS|1800`
 3. Add strict verb allowlist and bounded payload validation in firmware and host.
+
+## Timer command protocol
+
+Timer sketches accept newline-delimited commands:
+
+1. `CMD:TIMER|START|SECONDS|<N>`
+2. `CMD:TIMER|START|HHMMSS|<HHMMSS>`
+3. `CMD:TIMER|PAUSE`
+4. `CMD:TIMER|RESUME`
+5. `CMD:TIMER|RESET`
+6. `CMD:TIMER|STOP`
+7. `CMD:TIMER|PING`
+
+Responses:
+
+1. `ACK:TIMER|<VERB>` on accepted command
+2. `NACK:TIMER|<CODE>` on validation or format failure
+3. `PLAYLIST_DONE` when countdown reaches zero
+
+Safety behavior:
+
+1. Serial-silence fallback applies only while timer is `Paused`.
+2. Active `Running` countdown is not interrupted by command silence.
 
 ## See also
 
