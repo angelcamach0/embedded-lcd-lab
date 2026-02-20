@@ -83,6 +83,9 @@ Examples with flags:
 ./run_playlist.sh --upload-settle-seconds 0.9
 ./run_playlist.sh --auto-discover true --wait-for-done false --cycles 1
 ./run_playlist.sh --enable-legacy-ttt-duration true
+./run_playlist.sh --duration-override-hhmmss 003000
+./run_playlist.sh --duration-override-hhmmss 003000 --override-index 2
+./run_playlist.sh --duration-override-hhmmss 003000 --override-sketch 03_lcd_wakeup_reveal_000030.ino
 ```
 
 Default runtime behavior (no flags):
@@ -112,6 +115,10 @@ Per-sketch duration naming (optional):
 6. If `WAIT_FOR_DONE=true`, this value is used as token wait timeout.
 7. Legacy `_TTT` is disabled by default.
 8. To enable legacy `_TTT`, run with `--enable-legacy-ttt-duration true` (or set `ENABLE_LEGACY_TTT_DURATION=true` in `.env`).
+9. Optional global runtime override: `--duration-override-hhmmss HHMMSS` (applies to all sketches).
+10. Optional targeted override:
+   - `--override-index N` applies override only to playlist index `N` (1-based)
+   - `--override-sketch NAME.ino` applies override only to matching sketch basename
 
 ## First-run success checklist
 
@@ -165,6 +172,8 @@ Main runtime config is at the top of [`scripts/run_playlist.sh`](scripts/run_pla
 9. `UPLOAD_SETTLE_SECONDS`
 10. `PRECOMPILE_ONCE`, `BUILD_CACHE_ROOT`
 11. `ENABLE_LEGACY_TTT_DURATION`
+12. `DURATION_OVERRIDE_HHMMSS`
+13. `OVERRIDE_INDEX`, `OVERRIDE_SKETCH`
 
 Preferred config path for users:
 1. Copy [`.env.example`](.env.example) to `.env`
