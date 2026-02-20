@@ -2,6 +2,7 @@
 #include <lcd_shared.h>
 
 #include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -90,7 +91,11 @@ bool parseUnsigned(const char* s, unsigned long* out) {
     if (!isdigit(static_cast<unsigned char>(s[i]))) {
       return false;
     }
-    v = v * 10UL + static_cast<unsigned long>(s[i] - '0');
+    const unsigned long digit = static_cast<unsigned long>(s[i] - '0');
+    if (v > ((ULONG_MAX - digit) / 10UL)) {
+      return false;
+    }
+    v = v * 10UL + digit;
   }
   *out = v;
   return true;
