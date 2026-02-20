@@ -227,6 +227,14 @@ Use these only if you want more detail:
 8. [`docs/diagrams/README.md`](docs/diagrams/README.md): architecture diagram index
 9. [`docs/codeflows/README.md`](docs/codeflows/README.md): per-file behavior maps
 
+## Quick Quality Checks
+
+Run this before pushing timing-related changes:
+
+```bash
+./scripts/tests/test_duration_policy.sh
+```
+
 ## Safety and liability
 
 This project is for educational use. You are responsible for wiring, power limits, and safe operation of your hardware. See [`DISCLAIMER.md`](DISCLAIMER.md).
