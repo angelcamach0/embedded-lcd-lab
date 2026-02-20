@@ -13,9 +13,12 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPT_LIB="$PROJECT_ROOT/scripts/lib"
 ENV_FILE="${ENV_FILE:-$PROJECT_ROOT/.env}"
 DURATION_POLICY_LIB="$SCRIPT_LIB/duration_policy.sh"
+PORT_CONTROL_LIB="$SCRIPT_LIB/port_control.sh"
 
 # shellcheck source=./lib/duration_policy.sh
 source "$DURATION_POLICY_LIB"
+# shellcheck source=./lib/port_control.sh
+source "$PORT_CONTROL_LIB"
 
 trim_whitespace() {
   local s="$1"
@@ -331,79 +334,6 @@ cleanup_background_jobs() {
     kill ${pids} >/dev/null 2>&1 || true
     wait ${pids} 2>/dev/null || true
   fi
-}
-
-force_release_port_if_owned_by_helpers() {
-  # Last-resort cleanup for stale helper processes that still hold the serial
-  # device between sketch transitions.
-  if ! command -v lsof >/dev/null 2>&1; then
-    return 0
-  fi
-
-  local pids
-  pids="$(lsof -t "$PORT" 2>/dev/null | tr '\n' ' ' || true)"
-  [[ -n "${pids// }" ]] || return 0
-
-  local me pid cmd owner killed_any=false
-  me="$(id -un)"
-  for pid in $pids; do
-    [[ "$pid" =~ ^[0-9]+$ ]] || continue
-    [[ "$pid" -eq "$$" ]] && continue
-    owner="$(ps -o user= -p "$pid" 2>/dev/null | tr -d '[:space:]' || true)"
-    cmd="$(ps -o args= -p "$pid" 2>/dev/null || true)"
-    if [[ "$owner" == "$me" && ( "$cmd" == *"serial_feed.py"* || "$cmd" == *"token_watcher.py"* || "$cmd" == *"arduino-cli"* ) ]]; then
-      kill "$pid" >/dev/null 2>&1 || true
-      killed_any=true
-    fi
-  done
-
-  if [[ "$killed_any" == "true" ]]; then
-    sleep 0.35
-    pids="$(lsof -t "$PORT" 2>/dev/null | tr '\n' ' ' || true)"
-    for pid in $pids; do
-      [[ "$pid" =~ ^[0-9]+$ ]] || continue
-      [[ "$pid" -eq "$$" ]] && continue
-      owner="$(ps -o user= -p "$pid" 2>/dev/null | tr -d '[:space:]' || true)"
-      cmd="$(ps -o args= -p "$pid" 2>/dev/null || true)"
-      if [[ "$owner" == "$me" && ( "$cmd" == *"serial_feed.py"* || "$cmd" == *"token_watcher.py"* || "$cmd" == *"arduino-cli"* ) ]]; then
-        kill -9 "$pid" >/dev/null 2>&1 || true
-      fi
-    done
-    sleep 0.25
-  fi
-}
-
-port_busy_pids() {
-  # Best-effort detection of processes holding the serial port.
-  local pids=""
-  if command -v lsof >/dev/null 2>&1; then
-    pids="$(lsof -t "$PORT" 2>/dev/null | tr '\n' ' ' || true)"
-  elif command -v fuser >/dev/null 2>&1; then
-    pids="$(fuser "$PORT" 2>/dev/null | tr '\n' ' ' || true)"
-  fi
-  echo "$pids"
-}
-
-wait_for_port_free() {
-  # Poll until no process appears to own the serial device.
-  local timeout="${1:-$PORT_WAIT_TIMEOUT_SECONDS}"
-  local deadline=$(( $(date +%s) + timeout ))
-  while [[ $(date +%s) -lt "$deadline" ]]; do
-    local pids
-    pids="$(port_busy_pids)"
-    if [[ -z "${pids// }" ]]; then
-      return 0
-    fi
-    sleep 0.2
-  done
-  local pids
-  pids="$(port_busy_pids)"
-  if [[ -n "${pids// }" ]]; then
-    echo "[!] Port $PORT still busy by PID(s): $pids"
-    echo "[!] Close Arduino IDE Serial Monitor/Plotter if open, then retry."
-    return 1
-  fi
-  return 0
 }
 
 check_space_pressed() {

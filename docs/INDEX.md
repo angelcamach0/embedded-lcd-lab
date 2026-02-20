@@ -14,9 +14,10 @@ This index separates core setup docs from optional deep-dive references.
 1. [`../scripts/run_playlist.sh`](../scripts/run_playlist.sh) (runtime config and control flow)
 2. [`../scripts/tests/test_duration_policy.sh`](../scripts/tests/test_duration_policy.sh) (timing parser regression checks)
 3. [`../scripts/lib/duration_policy.sh`](../scripts/lib/duration_policy.sh) (timing/override policy helpers)
-4. [`animation-flow.md`](animation-flow.md) (wakeup reveal behavior details)
-5. [`SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md) (host/firmware serial contract)
-6. [`DROP_IN_SKETCHES.md`](DROP_IN_SKETCHES.md) (drop-in `.ino` usage and runtime flags)
+4. [`../scripts/lib/port_control.sh`](../scripts/lib/port_control.sh) (serial port lifecycle/retry helpers)
+5. [`animation-flow.md`](animation-flow.md) (wakeup reveal behavior details)
+6. [`SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md) (host/firmware serial contract)
+7. [`DROP_IN_SKETCHES.md`](DROP_IN_SKETCHES.md) (drop-in `.ino` usage and runtime flags)
 
 ## Optional internals
 
