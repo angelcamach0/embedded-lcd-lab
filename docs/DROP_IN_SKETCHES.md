@@ -78,6 +78,7 @@ then you can run token-driven switching:
 10. `PRECOMPILE_ONCE=true|false` (reuse compiled artifacts across cycles)
 11. `UPLOAD_SETTLE_SECONDS=0.9` (small delay after upload for serial stability)
 12. `ENABLE_LEGACY_TTT_DURATION=true|false` (default false)
+13. `DURATION_OVERRIDE_HHMMSS=HHMMSS` (optional global runtime override)
 
 Equivalent CLI flags are also supported:
 
@@ -92,6 +93,7 @@ Equivalent CLI flags are also supported:
 9. `--precompile-once true|false`
 10. `--upload-settle-seconds 0.9`
 11. `--enable-legacy-ttt-duration true|false`
+12. `--duration-override-hhmmss HHMMSS`
 
 ## Common pitfalls
 
