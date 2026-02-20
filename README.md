@@ -229,11 +229,10 @@ Use these only if you want more detail:
 
 ## Quick Quality Checks
 
-Run this before pushing timing-related changes:
+Run this before pushing:
 
 ```bash
-./scripts/tests/test_duration_policy.sh
-./scripts/tests/test_interactive_parser.sh
+./scripts/tests/run_all.sh
 ```
 
 ## Safety and liability
