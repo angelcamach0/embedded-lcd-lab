@@ -15,6 +15,7 @@ ENV_FILE="${ENV_FILE:-$PROJECT_ROOT/.env}"
 DURATION_POLICY_LIB="$SCRIPT_LIB/duration_policy.sh"
 PORT_CONTROL_LIB="$SCRIPT_LIB/port_control.sh"
 INTERACTIVE_PLAYLIST_LIB="$SCRIPT_LIB/interactive_playlist.sh"
+BUILD_UPLOAD_LIB="$SCRIPT_LIB/build_upload.sh"
 
 # shellcheck source=./lib/duration_policy.sh
 source "$DURATION_POLICY_LIB"
@@ -22,6 +23,8 @@ source "$DURATION_POLICY_LIB"
 source "$PORT_CONTROL_LIB"
 # shellcheck source=./lib/interactive_playlist.sh
 source "$INTERACTIVE_PLAYLIST_LIB"
+# shellcheck source=./lib/build_upload.sh
+source "$BUILD_UPLOAD_LIB"
 
 trim_whitespace() {
   local s="$1"
@@ -578,118 +581,6 @@ print_playlist_plan() {
     echo "    hold: ${hold}s (${hold_source})"
     echo "    token-timeout: ${timeout}s (${timeout_source})"
   done
-}
-
-build_cache_key() {
-  local sketch_input="$1"
-  local src_hash="unknown"
-  local libs_hash="none"
-  if [[ -f "$sketch_input" ]]; then
-    src_hash="$(sha1sum "$sketch_input" | awk '{print $1}')"
-  elif [[ -d "$sketch_input" ]]; then
-    src_hash="$(find "$sketch_input" -type f -print0 | sort -z | xargs -0 sha1sum 2>/dev/null | sha1sum | awk '{print $1}')"
-  fi
-
-  # Include local library contents in cache key so shared helper changes
-  # trigger a rebuild instead of reusing stale compiled artifacts.
-  if [[ -d "$LOCAL_LIBRARIES_DIR" ]]; then
-    libs_hash="$(find "$LOCAL_LIBRARIES_DIR" -type f -print0 | sort -z | xargs -0 sha1sum 2>/dev/null | sha1sum | awk '{print $1}')"
-  fi
-
-  printf '%s' "${BOARD_FQBN}|${LOCAL_LIBRARIES_DIR}|${libs_hash}|${sketch_input}|${src_hash}" | sha1sum | awk '{print $1}'
-}
-
-prepare_sketch_dir() {
-  # Prepare a valid sketch directory for arduino-cli.
-  # Outputs: "<sketch_dir>|<cleanup_dir>"
-  local sketch_input="$1"
-  local sketch_dir="$sketch_input"
-  local cleanup_dir=""
-  local stem=""
-
-  if [[ -f "$sketch_input" && "$sketch_input" == *.ino ]]; then
-    stem="$(basename "${sketch_input%.ino}")"
-    cleanup_dir="$(mktemp -d)"
-    sketch_dir="$cleanup_dir/$stem"
-    mkdir -p "$sketch_dir"
-    cp "$sketch_input" "$sketch_dir/$stem.ino"
-  fi
-
-  printf '%s|%s\n' "$sketch_dir" "$cleanup_dir"
-}
-
-compiled_build_ready() {
-  local build_dir="$1"
-  # arduino-cli upload --input-dir needs compiled artifacts in build_dir.
-  compgen -G "$build_dir/*.hex" >/dev/null
-}
-
-compile_for_upload() {
-  local sketch_input="$1"
-  local key build_dir prepared sketch_dir cleanup_dir
-  key="$(build_cache_key "$sketch_input")"
-  build_dir="$BUILD_CACHE_ROOT/$key"
-
-  mkdir -p "$BUILD_CACHE_ROOT"
-  if [[ "$PRECOMPILE_ONCE" == "true" ]] && compiled_build_ready "$build_dir"; then
-    echo "$build_dir"
-    return 0
-  fi
-
-  prepared="$(prepare_sketch_dir "$sketch_input")"
-  IFS='|' read -r sketch_dir cleanup_dir <<< "$prepared"
-
-  rm -rf "$build_dir"
-  mkdir -p "$build_dir"
-  "$ARDUINO_CLI" compile \
-    --libraries "$LOCAL_LIBRARIES_DIR" \
-    --build-path "$build_dir" \
-    --fqbn "$BOARD_FQBN" \
-    "$sketch_dir" \
-    1>&2
-
-  if [[ -n "$cleanup_dir" ]]; then
-    rm -rf "$cleanup_dir"
-  fi
-
-  echo "$build_dir"
-}
-
-upload_sketch() {
-  # Compile first to fail early before touching device state.
-  # Upload retries are needed because Uno resets and serial handoff can race.
-  local sketch_input="$1"
-  local build_dir=""
-
-  cleanup_background_jobs
-  force_release_port_if_owned_by_helpers
-  sleep 0.2
-  if ! wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS"; then
-    cleanup_background_jobs
-    force_release_port_if_owned_by_helpers
-  fi
-  echo "[+] Uploading: $sketch_input"
-  build_dir="$(compile_for_upload "$sketch_input")"
-
-  local attempt
-  for attempt in 1 2 3; do
-    if ! wait_for_port_free "$PORT_WAIT_TIMEOUT_SECONDS"; then
-      cleanup_background_jobs
-      force_release_port_if_owned_by_helpers
-      sleep 0.7
-      continue
-    fi
-
-    if "$ARDUINO_CLI" upload -p "$PORT" --fqbn "$BOARD_FQBN" --input-dir "$build_dir"; then
-      return 0
-    fi
-    echo "[!] Upload attempt ${attempt} failed; retrying shortly..."
-    cleanup_background_jobs
-    force_release_port_if_owned_by_helpers
-    sleep 1.2
-  done
-  echo "[!] Upload failed after retries: $sketch_input"
-  return 1
 }
 
 wait_for_done_token() {
