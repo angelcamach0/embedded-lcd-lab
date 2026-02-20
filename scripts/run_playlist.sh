@@ -123,6 +123,7 @@ UPLOAD_SETTLE_SECONDS="${UPLOAD_SETTLE_SECONDS:-0.9}"
 PRECOMPILE_ONCE="${PRECOMPILE_ONCE:-true}"
 BUILD_CACHE_ROOT="${BUILD_CACHE_ROOT:-/tmp/embedded-lcd-lab-build}"
 ENABLE_LEGACY_TTT_DURATION="${ENABLE_LEGACY_TTT_DURATION:-false}"
+ENABLE_TIMER_START_COMMAND="${ENABLE_TIMER_START_COMMAND:-true}"
 # -------------------------------
 
 to_bool() {
@@ -153,6 +154,7 @@ Flags:
   --upload-settle-seconds <float>
   --precompile-once <true|false> Compile once and reuse build artifacts (default true)
   --enable-legacy-ttt-duration <true|false>
+  --enable-timer-start-command <true|false>
   --serial-feed-sketch <path-or-file>
   --help
 EOF
@@ -236,6 +238,13 @@ parse_args() {
       --enable-legacy-ttt-duration)
         ENABLE_LEGACY_TTT_DURATION="$(to_bool "${2:-}")" || {
           echo "Invalid value for --enable-legacy-ttt-duration: ${2:-}"
+          exit 2
+        }
+        shift 2
+        ;;
+      --enable-timer-start-command)
+        ENABLE_TIMER_START_COMMAND="$(to_bool "${2:-}")" || {
+          echo "Invalid value for --enable-timer-start-command: ${2:-}"
           exit 2
         }
         shift 2
@@ -720,6 +729,31 @@ run_serial_feed_py() {
   python3 "$SCRIPT_LIB/serial_feed.py" "$1" "$2" "$3" "$4" "$5"
 }
 
+is_afoqt_timer_sketch() {
+  # Timer control commands are sent only to dedicated AFOQT timer sketches.
+  local sketch_path="$1"
+  local base
+  base="$(basename "$sketch_path")"
+  [[ "$base" =~ _afoqt_timer_ ]]
+}
+
+send_timer_start_if_applicable() {
+  local current_sketch="$1"
+  local hold_seconds="$2"
+
+  if [[ "$ENABLE_TIMER_START_COMMAND" != "true" ]]; then
+    return 0
+  fi
+
+  if ! is_afoqt_timer_sketch "$current_sketch"; then
+    return 0
+  fi
+
+  need_cmd python3
+  echo "[+] Sending timer start command: ${hold_seconds}s"
+  python3 "$SCRIPT_LIB/timer_control.py" "$PORT" START_SECONDS "$hold_seconds" || true
+}
+
 main() {
   # Main playlist engine:
   # 1) upload sketch
@@ -783,6 +817,8 @@ main() {
       if [[ -n "$name_duration" ]]; then
         hold="$name_duration"
       fi
+
+      send_timer_start_if_applicable "$current_sketch" "$hold"
 
       if [[ "$WAIT_FOR_DONE" == "true" ]]; then
         local timeout="${DEFAULT_DONE_TIMEOUT_SECONDS}"
