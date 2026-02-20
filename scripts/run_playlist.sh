@@ -126,6 +126,10 @@ ENABLE_LEGACY_TTT_DURATION="${ENABLE_LEGACY_TTT_DURATION:-false}"
 DURATION_OVERRIDE_HHMMSS="${DURATION_OVERRIDE_HHMMSS:-}"
 OVERRIDE_INDEX="${OVERRIDE_INDEX:-}"
 OVERRIDE_SKETCH="${OVERRIDE_SKETCH:-}"
+INTERACTIVE_PLAYLIST="${INTERACTIVE_PLAYLIST:-false}"
+
+INTERACTIVE_OVERRIDE_NAMES=()
+INTERACTIVE_OVERRIDE_SECONDS=()
 # -------------------------------
 
 to_bool() {
@@ -159,6 +163,7 @@ Flags:
   --duration-override-hhmmss <HHMMSS>  Global runtime duration override
   --override-index <N>                 Apply override to discovered index N only
   --override-sketch <name.ino>         Apply override to specific sketch basename
+  --interactive-playlist <true|false>  Prompt for sketch selection before run
   --serial-feed-sketch <path-or-file>
   --help
 EOF
@@ -260,6 +265,13 @@ parse_args() {
         ;;
       --override-sketch)
         OVERRIDE_SKETCH="${2:-}"
+        shift 2
+        ;;
+      --interactive-playlist)
+        INTERACTIVE_PLAYLIST="$(to_bool "${2:-}")" || {
+          echo "Invalid value for --interactive-playlist: ${2:-}"
+          exit 2
+        }
         shift 2
         ;;
       --serial-feed-sketch)
@@ -564,6 +576,67 @@ refresh_discovery_if_enabled() {
   if [[ "$AUTO_DISCOVER_SKETCHES" == "true" ]]; then
     discover_sketches
   fi
+
+  if [[ "$INTERACTIVE_PLAYLIST" == "true" ]]; then
+    apply_interactive_playlist_selection
+  fi
+}
+
+interactive_override_seconds_for_sketch() {
+  local sketch_path="$1"
+  local base
+  base="$(basename "$sketch_path")"
+  local idx
+  for idx in "${!INTERACTIVE_OVERRIDE_NAMES[@]}"; do
+    if [[ "${INTERACTIVE_OVERRIDE_NAMES[$idx]}" == "$base" ]]; then
+      echo "${INTERACTIVE_OVERRIDE_SECONDS[$idx]}"
+      return 0
+    fi
+  done
+  echo ""
+}
+
+apply_interactive_playlist_selection() {
+  # Interactive pre-run selection flow:
+  # - choose which discovered sketches to run
+  # - optional timer-specific override durations
+  need_cmd python3
+
+  local tmp_out
+  tmp_out="$(mktemp)"
+  if ! python3 "$SCRIPT_LIB/playlist_interactive.py" "$SKETCH_ROOT" >"$tmp_out"; then
+    rm -f "$tmp_out"
+    echo "[!] Interactive playlist selection failed."
+    return 1
+  fi
+
+  local selected=()
+  INTERACTIVE_OVERRIDE_NAMES=()
+  INTERACTIVE_OVERRIDE_SECONDS=()
+
+  while IFS='|' read -r kind a b; do
+    case "$kind" in
+      SKETCH)
+        selected+=("$a")
+        ;;
+      OVERRIDE)
+        if [[ "$b" =~ ^[0-9]+$ ]]; then
+          INTERACTIVE_OVERRIDE_NAMES+=("$a")
+          INTERACTIVE_OVERRIDE_SECONDS+=("$b")
+        fi
+        ;;
+    esac
+  done < "$tmp_out"
+  rm -f "$tmp_out"
+
+  if [[ ${#selected[@]} -eq 0 ]]; then
+    echo "[!] Interactive selection returned zero sketches."
+    return 1
+  fi
+
+  SKETCHES=("${selected[@]}")
+  AUTO_DISCOVER_SKETCHES="false"
+  echo "[+] Interactive playlist enabled with ${#SKETCHES[@]} sketch(es)."
 }
 
 build_cache_key() {
@@ -864,6 +937,11 @@ main() {
           hold="$global_override_seconds"
         fi
       fi
+      local interactive_override_seconds=""
+      interactive_override_seconds="$(interactive_override_seconds_for_sketch "$current_sketch")"
+      if [[ -n "$interactive_override_seconds" ]]; then
+        hold="$interactive_override_seconds"
+      fi
 
       if [[ "$WAIT_FOR_DONE" == "true" ]]; then
         local timeout="${DEFAULT_DONE_TIMEOUT_SECONDS}"
@@ -887,6 +965,9 @@ main() {
           if [[ "$apply_override_timeout" == "true" ]]; then
             timeout="$global_override_seconds"
           fi
+        fi
+        if [[ -n "$interactive_override_seconds" ]]; then
+          timeout="$interactive_override_seconds"
         fi
         echo "[+] Waiting for token '${DONE_TOKEN}' (timeout: ${timeout}s)"
         if wait_for_done_token "$timeout"; then

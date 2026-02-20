@@ -80,6 +80,7 @@ then you can run token-driven switching:
 13. `DURATION_OVERRIDE_HHMMSS=HHMMSS` (optional global runtime override)
 14. `OVERRIDE_INDEX=N` (optional 1-based target index for override)
 15. `OVERRIDE_SKETCH=name.ino` (optional basename target for override)
+16. `INTERACTIVE_PLAYLIST=true|false` (interactive pre-run selection)
 
 Equivalent CLI flags are also supported:
 
@@ -98,6 +99,7 @@ Equivalent CLI flags are also supported:
 13. `--override-index N` (1-based)
 14. `--override-sketch NAME.ino`
 15. `--override-index` and `--override-sketch` are mutually exclusive.
+16. `--interactive-playlist true|false`
 
 ## Common pitfalls
 
