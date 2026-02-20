@@ -13,6 +13,7 @@ This document captures current quality posture, critique, and next additions.
 7. Serial port lifecycle/retry helpers were extracted into `scripts/lib/port_control.sh`.
 8. Interactive playlist selection/override helpers were extracted into `scripts/lib/interactive_playlist.sh`.
 9. Build/cache/upload helpers were extracted into `scripts/lib/build_upload.sh`.
+10. Token/feed/timer serial runtime helpers were extracted into `scripts/lib/serial_runtime.sh`.
 
 ## SOLID-Oriented Notes (Applied Pragmatically)
 

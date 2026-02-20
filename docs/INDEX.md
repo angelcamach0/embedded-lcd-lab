@@ -17,9 +17,10 @@ This index separates core setup docs from optional deep-dive references.
 4. [`../scripts/lib/port_control.sh`](../scripts/lib/port_control.sh) (serial port lifecycle/retry helpers)
 5. [`../scripts/lib/interactive_playlist.sh`](../scripts/lib/interactive_playlist.sh) (interactive selection/override helpers)
 6. [`../scripts/lib/build_upload.sh`](../scripts/lib/build_upload.sh) (compile/cache/upload helpers)
-7. [`animation-flow.md`](animation-flow.md) (wakeup reveal behavior details)
-8. [`SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md) (host/firmware serial contract)
-9. [`DROP_IN_SKETCHES.md`](DROP_IN_SKETCHES.md) (drop-in `.ino` usage and runtime flags)
+7. [`../scripts/lib/serial_runtime.sh`](../scripts/lib/serial_runtime.sh) (token/feed/timer serial runtime helpers)
+8. [`animation-flow.md`](animation-flow.md) (wakeup reveal behavior details)
+9. [`SERIAL_PROTOCOL.md`](SERIAL_PROTOCOL.md) (host/firmware serial contract)
+10. [`DROP_IN_SKETCHES.md`](DROP_IN_SKETCHES.md) (drop-in `.ino` usage and runtime flags)
 
 ## Optional internals
 
