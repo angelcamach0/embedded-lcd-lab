@@ -37,6 +37,14 @@ Rules:
 2. On overflow, parser resets buffer to avoid partial/stale frame rendering.
 3. Firmware uses fixed-size buffers (no dynamic `String` parsing in this path).
 
+Timer command safety (AFOQT timer sketch):
+
+1. Rejects malformed timer command frames with `NACK:TIMER|...`.
+2. Validates `HHMMSS` length and `MM/SS` bounds.
+3. Validates `SECONDS` payload is integer-only.
+4. Ignores unsupported verbs without crashing parser loop.
+5. If serial command channel is silent too long while running/paused, sketch falls back to idle state.
+
 ## Current host behavior
 
 From [`scripts/lib/serial_feed.py`](../scripts/lib/serial_feed.py):
